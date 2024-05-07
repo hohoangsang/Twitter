@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { checkSchema } from 'express-validator';
+import usersService from '~/services/users.services';
 import { validate } from '~/utils/validation';
 
 export const loginValidate = (req: Request, res: Response, next: NextFunction) => {
@@ -45,7 +46,18 @@ export const registerValidate = validate(
         errorMessage: 'Email is required'
       },
       isEmail: true,
-      trim: true
+      trim: true,
+      custom: {
+        options: async (value) => {
+          const isExistEmail = await usersService.checkExistEmail(value);
+
+          if (isExistEmail) {
+            throw new Error('Email already exist');
+          }
+
+          return true;
+        }
+      }
     },
     password: {
       exists: {
@@ -91,7 +103,10 @@ export const registerValidate = validate(
       }
     },
     date_of_birth: {
-      isISO8601: true
+      isISO8601: true,
+      exists: {
+        errorMessage: 'Date of birth is required'
+      }
     }
   })
 );
