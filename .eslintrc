@@ -29,7 +29,7 @@
         "trailingComma": "none",
         "useTabs": false,
         "vueIndentScriptAndStyle": false,
-        "printWidth": 120,
+        "printWidth": 100,
         "endOfLine": "auto",
         "tabWidth": 2
       }

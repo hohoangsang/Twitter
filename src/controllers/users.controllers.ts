@@ -1,6 +1,4 @@
 import { Request, Response } from 'express';
-import User from '~/models/schemas/user.schema';
-import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 
 export const loginController = (req: Request, res: Response) => {
@@ -19,14 +17,9 @@ export const loginController = (req: Request, res: Response) => {
 
 export const registerController = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name, date_of_birth } = req.body;
 
-    if (!email || !password)
-      return res.status(400).send({
-        message: 'Register Failed'
-      });
-
-    const result = await usersService.register({ email, password });
+    const result = await usersService.register({ email, password, name, date_of_birth });
 
     return res.send({
       mesage: 'Register Success',
