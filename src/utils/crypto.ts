@@ -6,5 +6,5 @@ const hash = (value: string) => {
 };
 
 export const hashPassword = (value: string) => {
-  return hash(value + process.env.PASSWORD_SECRET); 
+  return hash(value + process.env.PASSWORD_SECRET);
 };
