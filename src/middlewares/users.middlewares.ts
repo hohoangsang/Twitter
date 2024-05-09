@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { checkSchema } from 'express-validator';
+import { HTTP_STATUS } from '~/constants/httpStatus';
+import { ErrorWithStatus } from '~/models/errors';
 import usersService from '~/services/users.services';
 import { validate } from '~/utils/validation';
 
@@ -52,7 +54,10 @@ export const registerValidate = validate(
           const isExistEmail = await usersService.checkExistEmail(value);
 
           if (isExistEmail) {
-            throw new Error('Email already exist');
+            throw new ErrorWithStatus({
+              status: HTTP_STATUS.UNAUTHORIZED,
+              message: 'Email already exist'
+            });
           }
 
           return true;

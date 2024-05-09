@@ -1,4 +1,5 @@
-import express, { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
+import express from 'express';
+import { defaultErrorHandler } from '~/middlewares/errors.middleware';
 import userRouter from '~/routes/users.routes';
 import databaseService from '~/services/database.services';
 
@@ -15,10 +16,7 @@ app.use('/users', userRouter);
 /**
  * Đây là error handler, bắt buộc phải được đặt ở vị trí cuối cùng sau những middleware function khác
  */
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  res.status(404).send({ message: err.message });
-});
+app.use(defaultErrorHandler);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
