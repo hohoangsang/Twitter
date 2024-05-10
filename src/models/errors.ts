@@ -1,4 +1,5 @@
 import { HTTP_STATUS } from '~/constants/httpStatus';
+import { USERS_MESSAGES } from '~/constants/message';
 
 type ErrorsType = Record<
   string,
@@ -22,7 +23,7 @@ export class ErrorEntity extends ErrorWithStatus {
   errors: ErrorsType;
 
   constructor({
-    message = 'Error Validate',
+    message = USERS_MESSAGES.VALIDATION_ERROR,
     errors
   }: {
     message?: string;
