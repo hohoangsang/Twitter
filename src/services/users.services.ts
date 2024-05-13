@@ -1,3 +1,4 @@
+import { ParamsDictionary } from 'express-serve-static-core';
 import { TokenType } from '~/constants/enum';
 import User from '~/models/schemas/user.schema';
 import { RegisterBody } from '~/models/users/register';
@@ -55,6 +56,11 @@ class UsersService {
   async checkExistEmail(email: string) {
     const result = await databaseService.users.findOne({ email });
     return Boolean(result);
+  }
+
+  async findOneUser(email: string) {
+    const result = await databaseService.users.findOne({ email });
+    return result;
   }
 }
 
