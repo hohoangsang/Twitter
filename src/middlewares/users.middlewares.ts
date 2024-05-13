@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
 import { checkSchema } from 'express-validator';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
+import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';
 import { validate } from '~/utils/validation';
@@ -17,6 +17,32 @@ import { validate } from '~/utils/validation';
 
 export const loginValidate = validate(
   checkSchema({
+    email: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+      },
+      isEmail: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({
+            email: value,
+            password: hashPassword(req.body.password)
+          });
+
+          if (!user) {
+            throw new ErrorWithStatus({
+              status: HTTP_STATUS.UNAUTHORIZED,
+              message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
+            });
+          }
+
+          req.user = user;
+          return true;
+        }
+      }
+    },
     password: {
       notEmpty: {
         errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
@@ -39,37 +65,6 @@ export const loginValidate = validate(
           minUppercase: 1,
           minNumbers: 1,
           minSymbols: 1
-        }
-      }
-    },
-    email: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
-      },
-      isEmail: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-      },
-      custom: {
-        options: async (value, { req }) => {
-          const user = await usersService.findOneUser(value);
-          const password = req.body;
-          const passwordHash = hashPassword(password);
-
-          if (!user) {
-            throw new ErrorWithStatus({
-              status: HTTP_STATUS.UNAUTHORIZED,
-              message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
-            });
-          }
-
-          if (passwordHash !== user.password) {
-            throw new ErrorWithStatus({
-              status: HTTP_STATUS.UNAUTHORIZED,
-              message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
-            });
-          }
-
-          req.user = user;
         }
       }
     }

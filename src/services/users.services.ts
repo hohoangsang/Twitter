@@ -1,5 +1,7 @@
 import { ParamsDictionary } from 'express-serve-static-core';
 import { TokenType } from '~/constants/enum';
+import { HTTP_STATUS } from '~/constants/httpStatus';
+import { USERS_MESSAGES } from '~/constants/message';
 import User from '~/models/schemas/user.schema';
 import { RegisterBody } from '~/models/users/register';
 import databaseService from '~/services/database.services';
@@ -31,6 +33,16 @@ class UsersService {
     });
   }
 
+  private signAccessAndRefreshToken(userId: string) {
+    if (!userId)
+      return Promise.reject({
+        message: USERS_MESSAGES.USER_UNDEFINED,
+        status: HTTP_STATUS.UNAUTHORIZED
+      });
+
+    return Promise.all([this.signAccessToken(userId), this.signRefreshToken(userId)]);
+  }
+
   async register(body: RegisterBody) {
     const result = await databaseService.users.insertOne(
       new User({
@@ -42,10 +54,16 @@ class UsersService {
 
     const userId = result.insertedId.toString();
 
-    const [access_token, refresh_token] = await Promise.all([
-      this.signAccessToken(userId),
-      this.signRefreshToken(userId)
-    ]);
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(userId);
+
+    return {
+      access_token,
+      refresh_token
+    };
+  }
+
+  async login(userId: string) {
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(userId);
 
     return {
       access_token,
@@ -56,11 +74,6 @@ class UsersService {
   async checkExistEmail(email: string) {
     const result = await databaseService.users.findOne({ email });
     return Boolean(result);
-  }
-
-  async findOneUser(email: string) {
-    const result = await databaseService.users.findOne({ email });
-    return result;
   }
 }
 

@@ -5,7 +5,7 @@ import { wrapRequestHandler } from '~/utils/handlers';
 
 const userRouter = express.Router();
 
-userRouter.post('/login', loginValidate, loginController);
+userRouter.post('/login', loginValidate, wrapRequestHandler(loginController));
 userRouter.post('/register', registerValidate, wrapRequestHandler(registerController));
 
 export default userRouter;
