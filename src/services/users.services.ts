@@ -1,12 +1,17 @@
+import { config } from 'dotenv';
 import { ParamsDictionary } from 'express-serve-static-core';
+import { ObjectId } from 'mongodb';
 import { TokenType } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
+import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
 import { RegisterBody } from '~/models/users/register';
 import databaseService from '~/services/database.services';
 import { hashPassword } from '~/utils/crypto';
 import { signToken } from '~/utils/jwt';
+
+config();
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -56,6 +61,10 @@ class UsersService {
 
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken(userId);
 
+    databaseService.refreshToken.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(userId) })
+    );
+
     return {
       access_token,
       refresh_token
@@ -64,6 +73,10 @@ class UsersService {
 
   async login(userId: string) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken(userId);
+
+    databaseService.refreshToken.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(userId) })
+    );
 
     return {
       access_token,

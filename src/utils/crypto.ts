@@ -1,4 +1,7 @@
 import { createHash } from 'crypto';
+import { config } from 'dotenv';
+
+config();
 
 const hash = (value: string) => {
   //Sử dụng createHash có sẵn của nodejs và dùng thuật toán sha256 để hash
