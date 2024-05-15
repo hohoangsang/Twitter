@@ -5,6 +5,7 @@ import { ErrorWithStatus } from '~/models/errors';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';
+import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
 
 /**
@@ -15,60 +16,63 @@ import { validate } from '~/utils/validation';
  * }
  */
 
-export const loginValidate = validate(
-  checkSchema({
-    email: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
-      },
-      isEmail: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-      },
-      custom: {
-        options: async (value, { req }) => {
-          const user = await databaseService.users.findOne({
-            email: value,
-            password: hashPassword(req.body.password)
-          });
-
-          if (!user) {
-            throw new ErrorWithStatus({
-              status: HTTP_STATUS.UNAUTHORIZED,
-              message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
+export const loginValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+        },
+        isEmail: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const user = await databaseService.users.findOne({
+              email: value,
+              password: hashPassword(req.body.password)
             });
-          }
 
-          req.user = user;
-          return true;
+            if (!user) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
+              });
+            }
+
+            req.user = user;
+            return true;
+          }
+        }
+      },
+      password: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
+        },
+        isLength: {
+          errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
+          options: {
+            min: 6,
+            max: 50
+          }
+        },
+        isStrongPassword: {
+          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
+          options: {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+          }
         }
       }
     },
-    password: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
-      },
-      isString: {
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-      },
-      isLength: {
-        errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
-        options: {
-          min: 6,
-          max: 50
-        }
-      },
-      isStrongPassword: {
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1
-        }
-      }
-    }
-  })
+    ['body']
+  )
 );
 
 /**
@@ -82,116 +86,156 @@ export const loginValidate = validate(
  * }
  */
 
-export const registerValidate = validate(
-  checkSchema({
-    name: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
-      },
-      isString: {
-        errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
-      },
-      isLength: {
-        errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_255,
-        options: {
-          min: 1,
-          max: 255
-        }
-      },
-      trim: true
-    },
-    email: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
-      },
-      isEmail: {
-        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
-      },
-      custom: {
-        options: async (value) => {
-          const isExistEmail = await usersService.checkExistEmail(value);
-
-          if (isExistEmail) {
-            throw new ErrorWithStatus({
-              status: HTTP_STATUS.UNAUTHORIZED,
-              message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS
-            });
+export const registerValidator = validate(
+  checkSchema(
+    {
+      name: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
+        },
+        isLength: {
+          errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_255,
+          options: {
+            min: 1,
+            max: 255
           }
+        },
+        trim: true
+      },
+      email: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+        },
+        isEmail: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+        },
+        custom: {
+          options: async (value) => {
+            const isExistEmail = await usersService.checkExistEmail(value);
 
-          return true;
-        }
-      }
-    },
-    password: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
-      },
-      isString: {
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-      },
-      isLength: {
-        errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
-        options: {
-          min: 6,
-          max: 50
-        }
-      },
-      isStrongPassword: {
-        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1
-        }
-      }
-    },
-    confirm_password: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
-      },
-      isString: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
-      },
-      isLength: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
-        options: {
-          min: 6,
-          max: 50
-        }
-      },
-      isStrongPassword: {
-        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG,
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-          minSymbols: 1
-        }
-      },
-      custom: {
-        options: (value, { req }) => {
-          const password = req.body.password;
+            if (isExistEmail) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS
+              });
+            }
 
-          if (value !== password) {
-            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD);
+            return true;
           }
+        }
+      },
+      password: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
+        },
+        isLength: {
+          errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
+          options: {
+            min: 6,
+            max: 50
+          }
+        },
+        isStrongPassword: {
+          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
+          options: {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+          }
+        }
+      },
+      confirm_password: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+        },
+        isString: {
+          errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
+        },
+        isLength: {
+          errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
+          options: {
+            min: 6,
+            max: 50
+          }
+        },
+        isStrongPassword: {
+          errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG,
+          options: {
+            minLength: 6,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+          }
+        },
+        custom: {
+          options: (value, { req }) => {
+            const password = req.body.password;
 
-          return true;
+            if (value !== password) {
+              throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD);
+            }
+
+            return true;
+          }
+        }
+      },
+      date_of_birth: {
+        optional: true,
+        isISO8601: {
+          errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
+          options: {
+            strict: true,
+            strictSeparator: true
+          }
         }
       }
     },
-    date_of_birth: {
-      optional: true,
-      isISO8601: {
-        errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
-        options: {
-          strict: true,
-          strictSeparator: true
+    ['body']
+  )
+);
+
+export const accessTokenValidator = validate(
+  checkSchema(
+    {
+      Authorization: {
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              });
+            }
+
+            const accessToken = value.split(' ')[1];
+
+            //check token is not empty
+            if (!accessToken) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              });
+            }
+
+            //verify token
+            const decodeAuthorization = await verifyToken({ token: accessToken });
+
+            req.decodeAuthorization = decodeAuthorization;
+
+            return true;
+          }
         }
       }
-    }
-  })
+    },
+    ['headers']
+  )
 );
