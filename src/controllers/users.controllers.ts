@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { USERS_MESSAGES } from '~/constants/message';
 import User from '~/models/schemas/user.schema';
 import { RegisterBody } from '~/models/users/register';
+import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 
 export const loginController = async (req: Request, res: Response) => {
@@ -26,7 +27,17 @@ export const registerController = async (
   const result = await usersService.register(req.body);
 
   return res.send({
-    mesage: USERS_MESSAGES.REGISTER_SUCCESS,
+    message: USERS_MESSAGES.REGISTER_SUCCESS,
     result
+  });
+};
+
+export const logoutController = async (req: Request, res: Response) => {
+  const { refresh_token } = req.body;
+
+  const result = await usersService.logout(refresh_token);
+
+  return res.send({
+    message: result.message
   });
 };

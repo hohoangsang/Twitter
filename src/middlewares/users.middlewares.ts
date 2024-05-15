@@ -1,4 +1,6 @@
 import { checkSchema } from 'express-validator';
+import { JsonWebTokenError } from 'jsonwebtoken';
+import { capitalize } from 'lodash';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
@@ -209,33 +211,105 @@ export const accessTokenValidator = validate(
       Authorization: {
         custom: {
           options: async (value: string, { req }) => {
-            if (!value) {
+            try {
+              if (!value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                });
+              }
+
+              const accessToken = value.split(' ')[1];
+
+              //check token is not empty
+              if (!accessToken) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                });
+              }
+
+              //verify token
+              const decoded_authorization = await verifyToken({ token: accessToken });
+
+              req.decoded_authorization = decoded_authorization;
+
+              return true;
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.UNAUTHORIZED,
+                  message: capitalize(error.message)
+                });
+              }
+
               throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: (error as ErrorWithStatus).message
               });
             }
-
-            const accessToken = value.split(' ')[1];
-
-            //check token is not empty
-            if (!accessToken) {
-              throw new ErrorWithStatus({
-                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                status: HTTP_STATUS.UNAUTHORIZED
-              });
-            }
-
-            //verify token
-            const decodeAuthorization = await verifyToken({ token: accessToken });
-
-            req.decodeAuthorization = decodeAuthorization;
-
-            return true;
           }
         }
       }
     },
     ['headers']
+  )
+);
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      refresh_token: {
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              //check refresh token is empty or not
+              if (!value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                });
+              }
+
+              //check type of refresh token
+              if (typeof value !== 'string') {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.REFRESH_TOKEN_IS_INVALID,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                });
+              }
+
+              const [decoded_refresh_token, user] = await Promise.all([
+                verifyToken({ token: value }),
+                databaseService.refreshToken.findOne({ token: value })
+              ]);
+
+              //check token is existed in DB
+              if (!user) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.UNAUTHORIZED,
+                  message: USERS_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST
+                });
+              }
+
+              req.decoded_refresh_token = decoded_refresh_token;
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.UNAUTHORIZED,
+                  message: capitalize(error.message)
+                });
+              }
+
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: (error as ErrorWithStatus).message
+              });
+            }
+          }
+        }
+      }
+    },
+    ['body']
   )
 );

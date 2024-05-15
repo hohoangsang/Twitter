@@ -36,12 +36,7 @@ export const verifyToken = ({
   return new Promise<jwt.JwtPayload>((resolve, reject) => {
     jwt.verify(token, secretOrPublicKey as string, function (err, decoded) {
       if (err) {
-        throw reject(
-          new ErrorWithStatus({
-            status: HTTP_STATUS.UNAUTHORIZED,
-            message: USERS_MESSAGES.TOKEN_IS_INVALID
-          })
-        );
+        throw reject(err);
       } else {
         resolve(decoded as jwt.JwtPayload);
       }

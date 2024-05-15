@@ -88,6 +88,14 @@ class UsersService {
     const result = await databaseService.users.findOne({ email });
     return Boolean(result);
   }
+
+  async logout(token: string) {
+    await databaseService.refreshToken.deleteOne({ token });
+
+    return {
+      message: USERS_MESSAGES.LOGOUT_SUCCESS
+    };
+  }
 }
 
 const usersService = new UsersService();

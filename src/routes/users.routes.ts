@@ -1,8 +1,13 @@
 import express from 'express';
-import { loginController, registerController } from '~/controllers/users.controllers';
+import {
+  loginController,
+  logoutController,
+  registerController
+} from '~/controllers/users.controllers';
 import {
   accessTokenValidator,
   loginValidator,
+  refreshTokenValidator,
   registerValidator
 } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
@@ -48,11 +53,8 @@ userRouter.post('/register', registerValidator, wrapRequestHandler(registerContr
 userRouter.post(
   '/logout',
   accessTokenValidator,
-  wrapRequestHandler((req, res) => {
-    res.send({
-      message: 'Logout thanh cong hehee'
-    });
-  })
+  refreshTokenValidator,
+  wrapRequestHandler(logoutController)
 );
 
 export default userRouter;
