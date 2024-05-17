@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { capitalize } from 'lodash';
@@ -232,8 +233,7 @@ export const accessTokenValidator = validate(
               //verify token
               const decoded_authorization = await verifyToken({ token: accessToken });
 
-              req.decoded_authorization = decoded_authorization;
-
+              (req as Request).decoded_authorization = decoded_authorization;
               return true;
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
@@ -279,20 +279,21 @@ export const refreshTokenValidator = validate(
                 });
               }
 
-              const [decoded_refresh_token, user] = await Promise.all([
+              const [decoded_refresh_token, refresh_token] = await Promise.all([
                 verifyToken({ token: value }),
                 databaseService.refreshToken.findOne({ token: value })
               ]);
 
               //check token is existed in DB
-              if (!user) {
+              if (!refresh_token) {
                 throw new ErrorWithStatus({
                   status: HTTP_STATUS.UNAUTHORIZED,
                   message: USERS_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST
                 });
               }
 
-              req.decoded_refresh_token = decoded_refresh_token;
+              (req as Request).decoded_refresh_token = decoded_refresh_token;
+              return true;
             } catch (error) {
               if (error instanceof JsonWebTokenError) {
                 throw new ErrorWithStatus({

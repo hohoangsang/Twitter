@@ -3,6 +3,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
+import { TokenPayload } from '~/models/requests/users.requests';
 
 config();
 
@@ -33,12 +34,12 @@ export const verifyToken = ({
   token: string;
   secretOrPublicKey?: string;
 }) => {
-  return new Promise<jwt.JwtPayload>((resolve, reject) => {
+  return new Promise<TokenPayload>((resolve, reject) => {
     jwt.verify(token, secretOrPublicKey as string, function (err, decoded) {
       if (err) {
         throw reject(err);
       } else {
-        resolve(decoded as jwt.JwtPayload);
+        resolve(decoded as TokenPayload);
       }
     });
   });
