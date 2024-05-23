@@ -1,11 +1,19 @@
+import { defaultErrorHandler } from '~/middlewares/errors.middleware';
 import { Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ObjectId } from 'mongodb';
 import { USERS_MESSAGES } from '~/constants/message';
-import { LogoutBody, RegisterBody } from '~/models/requests/users.requests';
+import {
+  EmailVerifyBody,
+  LogoutBody,
+  RegisterBody,
+  TokenPayload
+} from '~/models/requests/users.requests';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
+import { ErrorWithStatus } from '~/models/errors';
+import { HTTP_STATUS } from '~/constants/httpStatus';
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req?.user as User;
@@ -42,5 +50,29 @@ export const logoutController = async (
 
   return res.send({
     message: result.message
+  });
+};
+
+export const emailVerifyController = async (
+  req: Request<ParamsDictionary, any, EmailVerifyBody>,
+  res: Response
+) => {
+  const { email_verify_token } = req.body;
+  const { user_id } = req.decoded_email_verify as TokenPayload;
+
+  const user = await databaseService.users.findOne({ email_verify_token });
+
+  if (!user) {
+    throw new ErrorWithStatus({
+      message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE,
+      status: HTTP_STATUS.NOT_FOUND
+    });
+  }
+
+  const result = await usersService.verifyEmail(user_id);
+
+  return res.send({
+    message: USERS_MESSAGES.EMAIL_VERIFY_SUCCESS,
+    result
   });
 };

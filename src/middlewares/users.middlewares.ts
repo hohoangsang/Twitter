@@ -1,3 +1,4 @@
+import { config } from 'dotenv';
 import { Request } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
@@ -10,6 +11,8 @@ import usersService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';
 import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
+
+config();
 
 /**
  * Login body
@@ -213,14 +216,7 @@ export const accessTokenValidator = validate(
         custom: {
           options: async (value: string, { req }) => {
             try {
-              if (!value) {
-                throw new ErrorWithStatus({
-                  message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
-                  status: HTTP_STATUS.UNAUTHORIZED
-                });
-              }
-
-              const accessToken = value.split(' ')[1];
+              const accessToken = (value || '').split(' ')[1];
 
               //check token is not empty
               if (!accessToken) {
@@ -231,7 +227,10 @@ export const accessTokenValidator = validate(
               }
 
               //verify token
-              const decoded_authorization = await verifyToken({ token: accessToken });
+              const decoded_authorization = await verifyToken({
+                token: accessToken,
+                secretOrPublicKey: process.env.PRIVATE_KEY_ACCESS_TOKEN as string
+              });
 
               (req as Request).decoded_authorization = decoded_authorization;
               return true;
@@ -280,7 +279,10 @@ export const refreshTokenValidator = validate(
               }
 
               const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value }),
+                verifyToken({
+                  token: value,
+                  secretOrPublicKey: process.env.PRIVATE_KEY_REFRESH_TOKEN as string
+                }),
                 databaseService.refreshToken.findOne({ token: value })
               ]);
 
@@ -305,6 +307,54 @@ export const refreshTokenValidator = validate(
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.UNAUTHORIZED,
                 message: (error as ErrorWithStatus).message
+              });
+            }
+          }
+        }
+      }
+    },
+    ['body']
+  )
+);
+
+export const emailTokenVerifyValidator = validate(
+  checkSchema(
+    {
+      email_verify_token: {
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              if (!value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.NOT_FOUND
+                });
+              }
+
+              const decoded_email_verify = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.PRIVATE_KEY_EMAIL_VERIFY_TOKEN as string
+              });
+
+              (req as Request).decoded_email_verify = decoded_email_verify;
+
+              return true;
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.NOT_FOUND,
+                  message: capitalize(error.message)
+                });
+              }
+
+              if (error instanceof ErrorWithStatus) {
+                throw error;
+              }
+
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.NOT_FOUND,
+                message: (error as any).message
               });
             }
           }
