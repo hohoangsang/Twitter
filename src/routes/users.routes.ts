@@ -3,6 +3,7 @@ import {
   emailVerifyController,
   loginController,
   logoutController,
+  resendVerifyEmailController,
   registerController
 } from '~/controllers/users.controllers';
 import {
@@ -60,7 +61,7 @@ userRouter.post(
 );
 
 /**
- * Description: Verify email
+ * Description: Verify email when user click the link in email to verify account
  * Methods: post
  * Path: /verify-email
  * Body: {
@@ -71,6 +72,20 @@ userRouter.post(
   '/verify-email',
   emailTokenVerifyValidator,
   wrapRequestHandler(emailVerifyController)
+);
+
+/**
+ * Description: Resend email verify
+ * Methods: post
+ * Path: /resend-email-verify
+ * Header: {
+ *    Authorization: `Bearer ${access_token}`
+ * }
+ */
+userRouter.post(
+  '/resend-email-verify',
+  accessTokenValidator,
+  wrapRequestHandler(resendVerifyEmailController)
 );
 
 export default userRouter;

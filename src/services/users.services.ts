@@ -136,6 +136,29 @@ class UsersService {
       refresh_token
     };
   }
+
+  async resendVerifyEmail(userId: string) {
+    const email_verify_token = await this.signEmailTokenVerify(userId);
+    console.log('resend email', email_verify_token);
+
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(userId)
+      },
+      {
+        $set: {
+          email_verify_token
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    );
+
+    return {
+      message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
+    };
+  }
 }
 
 const usersService = new UsersService();
