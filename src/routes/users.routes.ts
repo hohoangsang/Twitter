@@ -5,12 +5,14 @@ import {
   logoutController,
   resendVerifyEmailController,
   registerController,
-  forgotPasswordController
+  forgotPasswordController,
+  verifyForgotPasswordController
 } from '~/controllers/users.controllers';
 import {
   accessTokenValidator,
   emailTokenVerifyValidator,
   emailValidator,
+  forgotPasswordTokenValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator
@@ -99,5 +101,19 @@ userRouter.post(
  * }
  */
 userRouter.post('/forgot-password', emailValidator, wrapRequestHandler(forgotPasswordController));
+
+/**
+ * Description: Forgot password
+ * Methods: post
+ * Path: /forgot-password
+ * Body: {
+ *    email: string,
+ * }
+ */
+userRouter.post(
+  '/verify-forgot-password',
+  forgotPasswordTokenValidator,
+  wrapRequestHandler(verifyForgotPasswordController)
+);
 
 export default userRouter;

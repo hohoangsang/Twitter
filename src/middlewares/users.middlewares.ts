@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { capitalize } from 'lodash';
+import { ObjectId } from 'mongodb';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
@@ -390,6 +391,67 @@ export const emailValidator = validate(
 
             req.user = user;
             return true;
+          }
+        }
+      }
+    },
+    ['body']
+  )
+);
+
+export const forgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              if (!value) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.NOT_FOUND,
+                  message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+                });
+              }
+
+              const decoded_forgot_password_token = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.PRIVATE_KEY_FORGOT_PASSWORD_TOKEN as string
+              });
+
+              const { user_id } = decoded_forgot_password_token;
+
+              const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+
+              if (!user) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.USER_NOT_FOUND,
+                  status: HTTP_STATUS.NOT_FOUND
+                });
+              }
+
+              if (user.forgot_password_token !== value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGES.INVALID_FORGOT_PASSWORD_TOKEN,
+                  status: HTTP_STATUS.NOT_FOUND
+                });
+              }
+            } catch (error) {
+              if (error instanceof JsonWebTokenError) {
+                throw new ErrorWithStatus({
+                  status: HTTP_STATUS.BAD_REQUEST,
+                  message: capitalize(error.message)
+                });
+              }
+
+              if (error instanceof ErrorWithStatus) {
+                throw error;
+              }
+
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.NOT_FOUND,
+                message: (error as any).message
+              });
+            }
           }
         }
       }

@@ -30,3 +30,7 @@ export type LoginBody = {
   email: string;
   password: string;
 };
+
+export type VerifyForgotPasswordTokenBody = {
+  forgot_password_token: string;
+};
