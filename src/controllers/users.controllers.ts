@@ -4,6 +4,8 @@ import { ObjectId } from 'mongodb';
 import { USERS_MESSAGES } from '~/constants/message';
 import {
   EmailVerifyBody,
+  ForgotPasswordBody,
+  LoginBody,
   LogoutBody,
   RegisterBody,
   TokenPayload
@@ -15,7 +17,10 @@ import { ErrorWithStatus } from '~/models/errors';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { UserVerifyStatus } from '~/constants/enum';
 
-export const loginController = async (req: Request, res: Response) => {
+export const loginController = async (
+  req: Request<ParamsDictionary, any, LoginBody>,
+  res: Response
+) => {
   const user = req?.user as User;
 
   const userId = user._id as ObjectId;
@@ -95,6 +100,17 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
   }
 
   const result = await usersService.resendVerifyEmail(user_id);
+
+  return res.send(result);
+};
+
+export const forgotPasswordController = async (
+  req: Request<ParamsDictionary, any, ForgotPasswordBody>,
+  res: Response
+) => {
+  const { _id } = req.user as User;
+
+  const result = await usersService.forgotPassword(_id?.toString() as string);
 
   return res.send(result);
 };

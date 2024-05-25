@@ -364,3 +364,36 @@ export const emailTokenVerifyValidator = validate(
     ['body']
   )
 );
+
+export const emailValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+        },
+        isEmail: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const user = await databaseService.users.findOne({
+              email: value
+            });
+
+            if (!user) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED,
+                message: USERS_MESSAGES.USER_NOT_FOUND
+              });
+            }
+
+            req.user = user;
+            return true;
+          }
+        }
+      }
+    },
+    ['body']
+  )
+);

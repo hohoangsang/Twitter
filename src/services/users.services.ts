@@ -53,6 +53,19 @@ class UsersService {
     });
   }
 
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id,
+        type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.PRIVATE_KEY_FORGOT_PASSWORD_TOKEN as string,
+      options: {
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN
+      }
+    });
+  }
+
   private signAccessAndRefreshToken(userId: string) {
     if (!userId)
       return Promise.reject({
@@ -157,6 +170,30 @@ class UsersService {
 
     return {
       message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
+    };
+  }
+
+  async forgotPassword(user_id: string) {
+    const forgot_password_token = await this.signForgotPasswordToken(user_id);
+
+    console.log('Send email to verify forgot password token', forgot_password_token);
+
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: {
+          forgot_password_token
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    );
+
+    return {
+      message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
     };
   }
 }
