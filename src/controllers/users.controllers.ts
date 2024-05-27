@@ -3,13 +3,13 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import { ObjectId } from 'mongodb';
 import { USERS_MESSAGES } from '~/constants/message';
 import {
-  EmailVerifyBody,
-  ForgotPasswordBody,
-  LoginBody,
-  LogoutBody,
-  RegisterBody,
+  EmailVerifyReqBody,
+  ForgotPasswordReqBody,
+  LoginReqBody,
+  LogoutReqBody,
+  RegisterReqBody,
   TokenPayload,
-  VerifyForgotPasswordTokenBody
+  VerifyForgotPasswordTokenReqBody
 } from '~/models/requests/users.requests';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
@@ -19,7 +19,7 @@ import { HTTP_STATUS } from '~/constants/httpStatus';
 import { UserVerifyStatus } from '~/constants/enum';
 
 export const loginController = async (
-  req: Request<ParamsDictionary, any, LoginBody>,
+  req: Request<ParamsDictionary, any, LoginReqBody>,
   res: Response
 ) => {
   const user = req?.user as User;
@@ -35,7 +35,7 @@ export const loginController = async (
 };
 
 export const registerController = async (
-  req: Request<ParamsDictionary, any, RegisterBody>,
+  req: Request<ParamsDictionary, any, RegisterReqBody>,
   res: Response
 ) => {
   const result = await usersService.register(req.body);
@@ -47,7 +47,7 @@ export const registerController = async (
 };
 
 export const logoutController = async (
-  req: Request<ParamsDictionary, any, LogoutBody>,
+  req: Request<ParamsDictionary, any, LogoutReqBody>,
   res: Response
 ) => {
   const { refresh_token } = req.body;
@@ -60,7 +60,7 @@ export const logoutController = async (
 };
 
 export const emailVerifyController = async (
-  req: Request<ParamsDictionary, any, EmailVerifyBody>,
+  req: Request<ParamsDictionary, any, EmailVerifyReqBody>,
   res: Response
 ) => {
   const { email_verify_token } = req.body;
@@ -106,7 +106,7 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
 };
 
 export const forgotPasswordController = async (
-  req: Request<ParamsDictionary, any, ForgotPasswordBody>,
+  req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
   const { _id } = req.user as User;
@@ -117,7 +117,7 @@ export const forgotPasswordController = async (
 };
 
 export const verifyForgotPasswordController = async (
-  req: Request<ParamsDictionary, any, VerifyForgotPasswordTokenBody>,
+  req: Request<ParamsDictionary, any, VerifyForgotPasswordTokenReqBody>,
   res: Response
 ) => {
   return res.send({

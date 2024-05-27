@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { TokenType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
-import { RegisterBody } from '~/models/requests/users.requests';
+import { RegisterReqBody } from '~/models/requests/users.requests';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
@@ -76,7 +76,7 @@ class UsersService {
     return Promise.all([this.signAccessToken(userId), this.signRefreshToken(userId)]);
   }
 
-  async register(body: RegisterBody) {
+  async register(body: RegisterReqBody) {
     const userId = new ObjectId();
     const email_verify_token = await this.signEmailTokenVerify(userId.toString());
     const result = await databaseService.users.insertOne(
