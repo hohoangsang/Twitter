@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import { Request } from 'express';
-import { checkSchema } from 'express-validator';
+import { ParamSchema, checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { capitalize } from 'lodash';
 import { ObjectId } from 'mongodb';
@@ -14,6 +14,125 @@ import { verifyToken } from '~/utils/jwt';
 import { validate } from '~/utils/validation';
 
 config();
+
+const passwordSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+  },
+  isString: {
+    errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
+  },
+  isLength: {
+    errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
+    options: {
+      min: 6,
+      max: 50
+    }
+  },
+  isStrongPassword: {
+    errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
+    options: {
+      minLength: 6,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    }
+  }
+};
+
+const confirmPasswordSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+  },
+  isString: {
+    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING
+  },
+  isLength: {
+    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
+    options: {
+      min: 6,
+      max: 50
+    }
+  },
+  isStrongPassword: {
+    errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG,
+    options: {
+      minLength: 6,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    }
+  },
+  custom: {
+    options: (value, { req }) => {
+      const password = req.body.password;
+
+      if (value !== password) {
+        throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD);
+      }
+
+      return true;
+    }
+  }
+};
+
+const forgotPasswordTokenSchema: ParamSchema = {
+  custom: {
+    options: async (value, { req }) => {
+      try {
+        if (!value) {
+          throw new ErrorWithStatus({
+            status: HTTP_STATUS.NOT_FOUND,
+            message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+          });
+        }
+
+        const decoded_forgot_password_token = await verifyToken({
+          token: value,
+          secretOrPublicKey: process.env.PRIVATE_KEY_FORGOT_PASSWORD_TOKEN as string
+        });
+
+        const { user_id } = decoded_forgot_password_token;
+
+        const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+
+        if (!user) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.USER_NOT_FOUND,
+            status: HTTP_STATUS.NOT_FOUND
+          });
+        }
+
+        if (user.forgot_password_token !== value) {
+          throw new ErrorWithStatus({
+            message: USERS_MESSAGES.INVALID_FORGOT_PASSWORD_TOKEN,
+            status: HTTP_STATUS.NOT_FOUND
+          });
+        }
+
+        (req as Request).decoded_forgot_password_token = decoded_forgot_password_token;
+      } catch (error) {
+        if (error instanceof JsonWebTokenError) {
+          throw new ErrorWithStatus({
+            status: HTTP_STATUS.BAD_REQUEST,
+            message: capitalize(error.message)
+          });
+        }
+
+        if (error instanceof ErrorWithStatus) {
+          throw error;
+        }
+
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.NOT_FOUND,
+          message: (error as any).message
+        });
+      }
+    }
+  }
+};
 
 /**
  * Login body
@@ -455,6 +574,17 @@ export const forgotPasswordTokenValidator = validate(
           }
         }
       }
+    },
+    ['body']
+  )
+);
+
+export const resetPasswordValidator = validate(
+  checkSchema(
+    {
+      password: passwordSchema,
+      confirm_password: confirmPasswordSchema,
+      forgot_password_token: forgotPasswordTokenSchema
     },
     ['body']
   )

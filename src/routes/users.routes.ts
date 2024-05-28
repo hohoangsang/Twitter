@@ -6,7 +6,8 @@ import {
   resendVerifyEmailController,
   registerController,
   forgotPasswordController,
-  verifyForgotPasswordController
+  verifyForgotPasswordController,
+  resetPasswordController
 } from '~/controllers/users.controllers';
 import {
   accessTokenValidator,
@@ -15,7 +16,8 @@ import {
   forgotPasswordTokenValidator,
   loginValidator,
   refreshTokenValidator,
-  registerValidator
+  registerValidator,
+  resetPasswordValidator
 } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
 
@@ -103,17 +105,33 @@ userRouter.post(
 userRouter.post('/forgot-password', emailValidator, wrapRequestHandler(forgotPasswordController));
 
 /**
- * Description: Forgot password
+ * Description: Verify forgot password token
  * Methods: post
- * Path: /forgot-password
+ * Path: /verify-forgot-password
  * Body: {
- *    email: string,
+ *    forgot_password_token: string,
  * }
  */
 userRouter.post(
   '/verify-forgot-password',
   forgotPasswordTokenValidator,
   wrapRequestHandler(verifyForgotPasswordController)
+);
+
+/**
+ * Description: Reset password
+ * Methods: post
+ * Path: /reset-password
+ * Body: {
+ *    password: string,
+ *    confirm_password: string,
+ *    forgot_password_token: string
+ * }
+ */
+userRouter.post(
+  '/reset-password',
+  resetPasswordValidator,
+  wrapRequestHandler(resetPasswordController)
 );
 
 export default userRouter;
