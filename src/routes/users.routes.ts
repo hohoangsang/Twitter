@@ -8,7 +8,8 @@ import {
   forgotPasswordController,
   verifyForgotPasswordController,
   resetPasswordController,
-  getMeController
+  getMeController,
+  updateProfileController
 } from '~/controllers/users.controllers';
 import {
   accessTokenValidator,
@@ -144,5 +145,16 @@ userRouter.post(
  * }
  */
 userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController));
+
+/**
+ * Description: Update profile
+ * Methods: Patch
+ * Path: /me
+ * Header: {
+ *    Authorization: `Bearer ${access_token}`
+ * }
+ * Body: UserSchema
+ */
+userRouter.patch('/me', accessTokenValidator, wrapRequestHandler(updateProfileController));
 
 export default userRouter;

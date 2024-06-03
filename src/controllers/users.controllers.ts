@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ObjectId } from 'mongodb';
 import { USERS_MESSAGES } from '~/constants/message';
@@ -148,3 +148,9 @@ export const getMeController = async (req: Request, res: Response) => {
     result: user
   });
 };
+
+export const updateProfileController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
