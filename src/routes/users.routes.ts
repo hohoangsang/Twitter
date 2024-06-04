@@ -1,15 +1,15 @@
 import express from 'express';
 import {
   emailVerifyController,
+  forgotPasswordController,
+  getMeController,
   loginController,
   logoutController,
-  resendVerifyEmailController,
   registerController,
-  forgotPasswordController,
-  verifyForgotPasswordController,
+  resendVerifyEmailController,
   resetPasswordController,
-  getMeController,
-  updateProfileController
+  updateProfileController,
+  verifyForgotPasswordController
 } from '~/controllers/users.controllers';
 import {
   accessTokenValidator,
@@ -19,7 +19,8 @@ import {
   loginValidator,
   refreshTokenValidator,
   registerValidator,
-  resetPasswordValidator
+  resetPasswordValidator,
+  verifiedUserValidator
 } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
 
@@ -155,6 +156,11 @@ userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
  * }
  * Body: UserSchema
  */
-userRouter.patch('/me', accessTokenValidator, wrapRequestHandler(updateProfileController));
+userRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(updateProfileController)
+);
 
 export default userRouter;

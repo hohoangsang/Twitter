@@ -1,12 +1,14 @@
 import { config } from 'dotenv';
-import { Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ParamSchema, checkSchema } from 'express-validator';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { capitalize } from 'lodash';
 import { ObjectId } from 'mongodb';
+import { UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
+import { TokenPayload } from '~/models/requests/users.requests';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';
@@ -589,3 +591,18 @@ export const resetPasswordValidator = validate(
     ['body']
   )
 );
+
+export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { verify } = req.decoded_authorization as TokenPayload;
+
+  if (verify === UserVerifyStatus.Unverified) {
+    return next(
+      new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_VERIFIED,
+        status: HTTP_STATUS.FORBIDEN
+      })
+    );
+  }
+
+  return next();
+};

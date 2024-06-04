@@ -18,6 +18,7 @@ import usersService from '~/services/users.services';
 import { ErrorWithStatus } from '~/models/errors';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { UserVerifyStatus } from '~/constants/enum';
+import { json } from 'stream/consumers';
 
 export const loginController = async (
   req: Request<ParamsDictionary, any, LoginReqBody>,
@@ -26,8 +27,9 @@ export const loginController = async (
   const user = req?.user as User;
 
   const userId = user._id as ObjectId;
+  const verify = user.verify;
 
-  const result = await usersService.login(userId.toString());
+  const result = await usersService.login({ user_id: userId.toString(), verify });
 
   return res.send({
     message: USERS_MESSAGES.LOGIN_SUCCESS,
@@ -110,9 +112,9 @@ export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
-  const { _id } = req.user as User;
+  const { _id, verify } = req.user as User;
 
-  const result = await usersService.forgotPassword(_id?.toString() as string);
+  const result = await usersService.forgotPassword({ user_id: _id?.toString() as string, verify });
 
   return res.send(result);
 };
@@ -149,8 +151,8 @@ export const getMeController = async (req: Request, res: Response) => {
   });
 };
 
-export const updateProfileController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+export const updateProfileController = async (req: Request, res: Response, next: NextFunction) => {
+  return res.json({
+    message: 'Tài khoản đã xác thực'
+  });
+};
