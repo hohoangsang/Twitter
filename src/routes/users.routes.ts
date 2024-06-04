@@ -8,7 +8,7 @@ import {
   registerController,
   resendVerifyEmailController,
   resetPasswordController,
-  updateProfileController,
+  updateMeController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers';
 import {
@@ -160,7 +160,7 @@ userRouter.patch(
   '/me',
   accessTokenValidator,
   verifiedUserValidator,
-  wrapRequestHandler(updateProfileController)
+  wrapRequestHandler(updateMeController)
 );
 
 export default userRouter;

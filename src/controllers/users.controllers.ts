@@ -151,7 +151,7 @@ export const getMeController = async (req: Request, res: Response) => {
   });
 };
 
-export const updateProfileController = async (req: Request, res: Response, next: NextFunction) => {
+export const updateMeController = async (req: Request, res: Response, next: NextFunction) => {
   return res.json({
     message: 'Tài khoản đã xác thực'
   });
