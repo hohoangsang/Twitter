@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { TokenType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
-import { RegisterReqBody } from '~/models/requests/users.requests';
+import { RegisterReqBody, updateMeReqBody } from '~/models/requests/users.requests';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
@@ -257,6 +257,39 @@ class UsersService {
     );
 
     return result;
+  }
+
+  async updateMe({ body, user_id }: { body: updateMeReqBody; user_id: string }) {
+    const _body = body.date_of_birth
+      ? { ...body, date_of_birth: new Date(body.date_of_birth) }
+      : body;
+
+    const result = await databaseService.users.findOneAndUpdate(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: {
+          ...(_body as updateMeReqBody & { date_of_birth: Date })
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0
+        },
+        returnDocument: 'after'
+      }
+    );
+
+    return {
+      result,
+      message: USERS_MESSAGES.UPDATE_ME_SUCCESS
+    };
   }
 }
 

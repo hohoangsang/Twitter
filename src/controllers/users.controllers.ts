@@ -152,7 +152,10 @@ export const getMeController = async (req: Request, res: Response) => {
 };
 
 export const updateMeController = async (req: Request, res: Response, next: NextFunction) => {
-  return res.json({
-    message: 'Tài khoản đã xác thực'
-  });
+  const body = req.body;
+  const { user_id } = req.decoded_authorization as TokenPayload;
+
+  const result = await usersService.updateMe({ user_id, body });
+
+  return res.json(result);
 };
