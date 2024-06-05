@@ -597,7 +597,7 @@ export const resetPasswordValidator = validate(
 );
 
 export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
-  const { verify } = req.decoded_authorization as TokenPayload;
+  const { verify } = req.decoded_authorization as TokenPayload; //Cách này vãn chưa tối ưu về mặt trải nghiệm người dùng, nên dùng websocket để bắng noti về client để client lấy acceccToken mới nhất chứa trạng thái verify mới nhất
 
   if (verify === UserVerifyStatus.Unverified) {
     return next(

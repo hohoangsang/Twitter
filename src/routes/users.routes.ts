@@ -3,6 +3,7 @@ import {
   emailVerifyController,
   forgotPasswordController,
   getMeController,
+  getProfileController,
   loginController,
   logoutController,
   registerController,
@@ -149,6 +150,13 @@ userRouter.post(
  * }
  */
 userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController));
+
+/**
+ * Description: Get profile
+ * Methods: Get
+ * Path: /:username
+ */
+userRouter.get('/:username', wrapRequestHandler(getProfileController));
 
 /**
  * Description: Update profile

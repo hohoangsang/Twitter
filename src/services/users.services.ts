@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { TokenType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
+import { ErrorWithStatus } from '~/models/errors';
 import { RegisterReqBody, updateMeReqBody } from '~/models/requests/users.requests';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
@@ -255,6 +256,31 @@ class UsersService {
         }
       }
     );
+
+    return result;
+  }
+
+  async getProfile(username: string) {
+    const result = await databaseService.users.findOne(
+      { username },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+          created_at: 0,
+          updated_at: 0,
+          verify: 0
+        }
+      }
+    );
+
+    if (!result) {
+      throw new ErrorWithStatus({
+        status: HTTP_STATUS.NOT_FOUND,
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      });
+    }
 
     return result;
   }

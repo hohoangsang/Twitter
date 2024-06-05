@@ -51,3 +51,7 @@ export type updateMeReqBody = {
   avatar?: string;
   cover_photo?: string;
 };
+
+export type GetProfileReqParams = {
+  username: string;
+};

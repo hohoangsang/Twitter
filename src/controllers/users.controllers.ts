@@ -5,6 +5,7 @@ import { USERS_MESSAGES } from '~/constants/message';
 import {
   EmailVerifyReqBody,
   ForgotPasswordReqBody,
+  GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
   RegisterReqBody,
@@ -151,9 +152,19 @@ export const getMeController = async (req: Request, res: Response) => {
   });
 };
 
+export const getProfileController = async (req: Request<GetProfileReqParams>, res: Response) => {
+  const { username } = req.params;
+
+  const user = await usersService.getProfile(username);
+
+  return res.send({
+    message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
+    result: user
+  });
+};
+
 export const updateMeController = async (req: Request, res: Response, next: NextFunction) => {
   const body = req.body;
-  console.log(body);
   const { user_id } = req.decoded_authorization as TokenPayload;
 
   const result = await usersService.updateMe({ user_id, body });
