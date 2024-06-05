@@ -153,6 +153,7 @@ export const getMeController = async (req: Request, res: Response) => {
 
 export const updateMeController = async (req: Request, res: Response, next: NextFunction) => {
   const body = req.body;
+  console.log(body);
   const { user_id } = req.decoded_authorization as TokenPayload;
 
   const result = await usersService.updateMe({ user_id, body });
