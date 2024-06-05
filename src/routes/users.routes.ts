@@ -20,6 +20,7 @@ import {
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
+  updateMeValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
@@ -160,6 +161,7 @@ userRouter.patch(
   '/me',
   accessTokenValidator,
   verifiedUserValidator,
+  updateMeValidator,
   wrapRequestHandler(updateMeController)
 );
 

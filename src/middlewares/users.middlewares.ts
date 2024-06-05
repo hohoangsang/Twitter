@@ -136,6 +136,34 @@ const forgotPasswordTokenSchema: ParamSchema = {
   }
 };
 
+const dateOfBirthSchema: ParamSchema = {
+  optional: true,
+  isISO8601: {
+    errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
+    options: {
+      strict: true,
+      strictSeparator: true
+    }
+  }
+};
+
+const nameSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
+  },
+  isString: {
+    errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
+  },
+  isLength: {
+    errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_255,
+    options: {
+      min: 1,
+      max: 255
+    }
+  },
+  trim: true
+};
+
 /**
  * Login body
  * {
@@ -217,22 +245,7 @@ export const loginValidator = validate(
 export const registerValidator = validate(
   checkSchema(
     {
-      name: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING
-        },
-        isLength: {
-          errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_255,
-          options: {
-            min: 1,
-            max: 255
-          }
-        },
-        trim: true
-      },
+      name: nameSchema,
       email: {
         notEmpty: {
           errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
@@ -316,16 +329,7 @@ export const registerValidator = validate(
           }
         }
       },
-      date_of_birth: {
-        optional: true,
-        isISO8601: {
-          errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601,
-          options: {
-            strict: true,
-            strictSeparator: true
-          }
-        }
-      }
+      date_of_birth: dateOfBirthSchema
     },
     ['body']
   )
@@ -606,3 +610,101 @@ export const verifiedUserValidator = (req: Request, res: Response, next: NextFun
 
   return next();
 };
+
+export const updateMeValidator = validate(
+  checkSchema(
+    {
+      name: {
+        optional: true,
+        ...nameSchema,
+        notEmpty: undefined
+      },
+      date_of_birth: dateOfBirthSchema,
+      bio: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.BIO_LENGTH
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.BIO_LENGTH,
+          options: {
+            min: 1,
+            max: 200
+          }
+        }
+      },
+      location: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_STRING
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.LOCATION_LENGTH,
+          options: {
+            min: 1,
+            max: 200
+          }
+        }
+      },
+      website: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_STRING
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.WEBSITE_LENGTH,
+          options: {
+            min: 1,
+            max: 200
+          }
+        }
+      },
+      username: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.USERNAME_INVALID,
+          options: {
+            min: 4,
+            max: 15
+          }
+        }
+      },
+      avatar: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.IMAGE_URL_MUST_BE_STRING
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH,
+          options: {
+            min: 1,
+            max: 200
+          }
+        }
+      },
+      cover_photo: {
+        optional: true,
+        isString: {
+          errorMessage: USERS_MESSAGES.IMAGE_URL_MUST_BE_STRING
+        },
+        trim: true,
+        isLength: {
+          errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH,
+          options: {
+            min: 1,
+            max: 200
+          }
+        }
+      }
+    },
+    ['body']
+  )
+);
