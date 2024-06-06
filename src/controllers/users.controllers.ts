@@ -6,6 +6,7 @@ import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
 import {
+  ChangePasswordReqBody,
   EmailVerifyReqBody,
   FollowUserReqBody,
   ForgotPasswordReqBody,
@@ -193,6 +194,18 @@ export const unfollowUserController = async (
   const { user_id } = req.decoded_authorization as TokenPayload;
 
   const result = await usersService.unfollowUser({ user_id, followed_user_id });
+
+  return res.json(result);
+};
+
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, ChangePasswordReqBody>,
+  res: Response
+) => {
+  const { new_password } = req.body;
+  const { user_id } = req.decoded_authorization as TokenPayload;
+
+  const result = await usersService.changePassword({ new_password, user_id });
 
   return res.json(result);
 };

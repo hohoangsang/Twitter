@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  changePasswordController,
   emailVerifyController,
   followUserController,
   forgotPasswordController,
@@ -17,6 +18,7 @@ import {
 import { filterMiddleware } from '~/middlewares/common.middleware';
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailTokenVerifyValidator,
   emailValidator,
   followUserValidator,
@@ -227,6 +229,26 @@ userRouter.delete(
   verifiedUserValidator,
   unfollowUserValidator,
   wrapRequestHandler(unfollowUserController)
+);
+
+/**
+ * Description: Change password
+ * Methods: PATCH
+ * Path: /change-password
+ * Header: {
+ *    Authorization: `Bearer ${access_token}`
+ * }
+ * Body: {
+ *    old_password: string;
+ *    new_password: string;
+ * }
+ */
+userRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifiedUserValidator,
+  changePasswordValidator,
+  wrapRequestHandler(changePasswordController)
 );
 
 export default userRouter;

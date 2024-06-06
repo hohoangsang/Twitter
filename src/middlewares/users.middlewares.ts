@@ -225,31 +225,7 @@ export const loginValidator = validate(
           }
         }
       },
-      password: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
-        },
-        isString: {
-          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING
-        },
-        isLength: {
-          errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50,
-          options: {
-            min: 6,
-            max: 50
-          }
-        },
-        isStrongPassword: {
-          errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG,
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          }
-        }
-      }
+      password: passwordSchema
     },
     ['body']
   )
@@ -755,5 +731,33 @@ export const unfollowUserValidator = validate(
       followedUserId: followedUserIdSchema
     },
     ['params']
+  )
+);
+
+export const changePasswordValidator = validate(
+  checkSchema(
+    {
+      old_password: {
+        ...passwordSchema,
+        custom: {
+          options: async (value, { req }) => {
+            const { user_id } = (req as Request).decoded_authorization as TokenPayload;
+
+            const user = await databaseService.users.findOne({
+              _id: new ObjectId(user_id),
+              password: hashPassword(value)
+            });
+
+            if (!user) {
+              throw new Error(USERS_MESSAGES.OLD_PASSWORD_NOT_MATCH);
+            }
+
+            return true;
+          }
+        }
+      },
+      new_password: passwordSchema
+    },
+    ['body']
   )
 );
