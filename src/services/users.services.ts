@@ -6,6 +6,7 @@ import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
 import { RegisterReqBody, updateMeReqBody } from '~/models/requests/users.requests';
+import Follower from '~/models/schemas/follower.schema';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
@@ -106,6 +107,7 @@ class UsersService {
       new User({
         ...body,
         _id: userId,
+        username: 'user' + userId.toString(),
         date_of_birth: new Date(body.date_of_birth),
         password: hashPassword(body.password),
         email_verify_token
@@ -315,6 +317,54 @@ class UsersService {
     return {
       result,
       message: USERS_MESSAGES.UPDATE_ME_SUCCESS
+    };
+  }
+
+  async followUser({ followed_user_id, user_id }: { user_id: string; followed_user_id: string }) {
+    const follow = await databaseService.follower.findOne({
+      followed_user_id: new ObjectId(followed_user_id),
+      user_id: new ObjectId(user_id)
+    });
+
+    if (follow) {
+      throw new ErrorWithStatus({
+        status: HTTP_STATUS.BAD_REQUEST,
+        message: USERS_MESSAGES.FOLLOWED
+      });
+    }
+
+    await databaseService.follower.insertOne(
+      new Follower({
+        user_id: new ObjectId(user_id),
+        followed_user_id: new ObjectId(followed_user_id)
+      })
+    );
+
+    return {
+      message: USERS_MESSAGES.FOLLOW_SUCCESS
+    };
+  }
+
+  async unfollowUser({ user_id, followed_user_id }: { user_id: string; followed_user_id: string }) {
+    const follow = await databaseService.follower.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    });
+
+    if (!follow) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.ALREADY_UNFOLLOWED,
+        status: HTTP_STATUS.BAD_REQUEST
+      });
+    }
+
+    await databaseService.follower.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    });
+
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS
     };
   }
 }

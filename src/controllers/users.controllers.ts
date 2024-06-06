@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ObjectId } from 'mongodb';
+import { UserVerifyStatus } from '~/constants/enum';
+import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
+import { ErrorWithStatus } from '~/models/errors';
 import {
   EmailVerifyReqBody,
+  FollowUserReqBody,
   ForgotPasswordReqBody,
   GetProfileReqParams,
   LoginReqBody,
@@ -11,15 +15,12 @@ import {
   RegisterReqBody,
   ResetPasswordReqBody,
   TokenPayload,
+  UnFollowUserReqParams,
   VerifyForgotPasswordTokenReqBody
 } from '~/models/requests/users.requests';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
-import { ErrorWithStatus } from '~/models/errors';
-import { HTTP_STATUS } from '~/constants/httpStatus';
-import { UserVerifyStatus } from '~/constants/enum';
-import { json } from 'stream/consumers';
 
 export const loginController = async (
   req: Request<ParamsDictionary, any, LoginReqBody>,
@@ -168,6 +169,30 @@ export const updateMeController = async (req: Request, res: Response, next: Next
   const { user_id } = req.decoded_authorization as TokenPayload;
 
   const result = await usersService.updateMe({ user_id, body });
+
+  return res.json(result);
+};
+
+export const followUserController = async (
+  req: Request<ParamsDictionary, any, FollowUserReqBody>,
+  res: Response
+) => {
+  const { followed_user_id } = req.body;
+  const { user_id } = req.decoded_authorization as TokenPayload;
+
+  const result = await usersService.followUser({ user_id, followed_user_id });
+
+  return res.json(result);
+};
+
+export const unfollowUserController = async (
+  req: Request<UnFollowUserReqParams>,
+  res: Response
+) => {
+  const { followedUserId: followed_user_id } = req.params;
+  const { user_id } = req.decoded_authorization as TokenPayload;
+
+  const result = await usersService.unfollowUser({ user_id, followed_user_id });
 
   return res.json(result);
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   emailVerifyController,
+  followUserController,
   forgotPasswordController,
   getMeController,
   getProfileController,
@@ -9,6 +10,7 @@ import {
   registerController,
   resendVerifyEmailController,
   resetPasswordController,
+  unfollowUserController,
   updateMeController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers';
@@ -17,11 +19,13 @@ import {
   accessTokenValidator,
   emailTokenVerifyValidator,
   emailValidator,
+  followUserValidator,
   forgotPasswordTokenValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
+  unfollowUserValidator,
   updateMeValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares';
@@ -32,7 +36,7 @@ const userRouter = express.Router();
 
 /**
  * Description: Login user
- * Methods: post
+ * Methods: POST
  * Path: /login
  * Body: {
  *    email: string,
@@ -43,7 +47,7 @@ userRouter.post('/login', loginValidator, wrapRequestHandler(loginController));
 
 /**
  * Description: Register a new user
- * Methods: post
+ * Methods: POST
  * Path: /register
  * Body: {
  *    email: string,
@@ -57,7 +61,7 @@ userRouter.post('/register', registerValidator, wrapRequestHandler(registerContr
 
 /**
  * Description: Logout user
- * Methods: post
+ * Methods: POST
  * Path: /logout
  * Body: {
  *    refresh_token: string,
@@ -75,7 +79,7 @@ userRouter.post(
 
 /**
  * Description: Verify email when user click the link in email to verify account
- * Methods: post
+ * Methods: POST
  * Path: /verify-email
  * Body: {
  *    email_verify_token: string,
@@ -89,7 +93,7 @@ userRouter.post(
 
 /**
  * Description: Resend email verify
- * Methods: post
+ * Methods: POST
  * Path: /resend-email-verify
  * Header: {
  *    Authorization: `Bearer ${access_token}`
@@ -103,7 +107,7 @@ userRouter.post(
 
 /**
  * Description: Forgot password
- * Methods: post
+ * Methods: POST
  * Path: /forgot-password
  * Body: {
  *    email: string,
@@ -113,7 +117,7 @@ userRouter.post('/forgot-password', emailValidator, wrapRequestHandler(forgotPas
 
 /**
  * Description: Verify forgot password token
- * Methods: post
+ * Methods: POST
  * Path: /verify-forgot-password
  * Body: {
  *    forgot_password_token: string,
@@ -127,7 +131,7 @@ userRouter.post(
 
 /**
  * Description: Reset password
- * Methods: post
+ * Methods: POST
  * Path: /reset-password
  * Body: {
  *    password: string,
@@ -143,7 +147,7 @@ userRouter.post(
 
 /**
  * Description: Get profile
- * Methods: get
+ * Methods: GET
  * Path: /me
  * Header: {
  *    Authorization: `Bearer ${access_token}`
@@ -153,14 +157,14 @@ userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
 
 /**
  * Description: Get profile
- * Methods: Get
+ * Methods: GET
  * Path: /:username
  */
 userRouter.get('/:username', wrapRequestHandler(getProfileController));
 
 /**
  * Description: Update profile
- * Methods: Patch
+ * Methods: PATCH
  * Path: /me
  * Header: {
  *    Authorization: `Bearer ${access_token}`
@@ -183,6 +187,46 @@ userRouter.patch(
     'cover_photo'
   ]),
   wrapRequestHandler(updateMeController)
+);
+
+/**
+ * Description: Follow user
+ * Methods: POST
+ * Path: /follow-user
+ * Header: {
+ *    Authorization: `Bearer ${access_token}`
+ * }
+ * Body: {
+ *    followed_user_id: string;
+ * }
+ */
+
+userRouter.post(
+  '/follow-user',
+  accessTokenValidator,
+  verifiedUserValidator,
+  followUserValidator,
+  wrapRequestHandler(followUserController)
+);
+
+/**
+ * Description: UnFollow user
+ * Methods: DELETE
+ * Path: /unfollow-user
+ * Header: {
+ *    Authorization: `Bearer ${access_token}`
+ * }
+ * Body: {
+ *    followed_user_id: string;
+ * }
+ */
+
+userRouter.delete(
+  '/unfollow-user/:followedUserId',
+  accessTokenValidator,
+  verifiedUserValidator,
+  unfollowUserValidator,
+  wrapRequestHandler(unfollowUserController)
 );
 
 export default userRouter;

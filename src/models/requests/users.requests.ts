@@ -1,3 +1,4 @@
+import { ParamsDictionary } from 'express-serve-static-core';
 import { JwtPayload } from 'jsonwebtoken';
 import { TokenType } from '~/constants/enum';
 
@@ -52,6 +53,14 @@ export type updateMeReqBody = {
   cover_photo?: string;
 };
 
-export type GetProfileReqParams = {
+export interface GetProfileReqParams extends ParamsDictionary {
   username: string;
+}
+
+export type FollowUserReqBody = {
+  followed_user_id: string;
 };
+
+export interface UnFollowUserReqParams extends ParamsDictionary {
+  followedUserId: string;
+}

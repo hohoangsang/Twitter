@@ -2,6 +2,7 @@ import { Collection, Db, MongoClient } from 'mongodb';
 import { config } from 'dotenv';
 import User from '~/models/schemas/user.schema';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
+import Follower from '~/models/schemas/follower.schema';
 
 config();
 
@@ -32,6 +33,10 @@ class DatabaseService {
 
   get refreshToken(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_REFRESH_TOKENS_COLLECTION as string);
+  }
+
+  get follower(): Collection<Follower> {
+    return this.db.collection(process.env.DB_FOLLOWERS_COLLECTIONS as string);
   }
 }
 

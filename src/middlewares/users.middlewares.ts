@@ -164,6 +164,29 @@ const nameSchema: ParamSchema = {
   trim: true
 };
 
+const followedUserIdSchema: ParamSchema = {
+  custom: {
+    options: async (value: string, { req }) => {
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.BAD_REQUEST,
+          message: USERS_MESSAGES.INVALID_USER_ID
+        });
+      }
+
+      const followedUser = databaseService.users.findOne({ _id: new ObjectId(value) });
+      if (!followedUser) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.NOT_FOUND,
+          message: USERS_MESSAGES.USER_NOT_FOUND
+        });
+      }
+
+      return true;
+    }
+  }
+};
+
 /**
  * Login body
  * {
@@ -706,5 +729,23 @@ export const updateMeValidator = validate(
       }
     },
     ['body']
+  )
+);
+
+export const followUserValidator = validate(
+  checkSchema(
+    {
+      followed_user_id: followedUserIdSchema
+    },
+    ['body']
+  )
+);
+
+export const unfollowUserValidator = validate(
+  checkSchema(
+    {
+      followedUserId: followedUserIdSchema
+    },
+    ['params']
   )
 );
