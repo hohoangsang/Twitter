@@ -175,7 +175,7 @@ const followedUserIdSchema: ParamSchema = {
         });
       }
 
-      const followedUser = databaseService.users.findOne({ _id: new ObjectId(value) });
+      const followedUser = await databaseService.users.findOne({ _id: new ObjectId(value) });
       if (!followedUser) {
         throw new ErrorWithStatus({
           status: HTTP_STATUS.NOT_FOUND,
