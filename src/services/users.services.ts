@@ -103,7 +103,8 @@ class UsersService {
       user_id: userId.toString(),
       verify: UserVerifyStatus.Unverified
     });
-    const result = await databaseService.users.insertOne(
+
+    await databaseService.users.insertOne(
       new User({
         ...body,
         _id: userId,
@@ -171,6 +172,10 @@ class UsersService {
     ]);
 
     const [access_token, refresh_token] = token;
+
+    databaseService.refreshToken.insertOne(
+      new RefreshToken({ token: refresh_token, user_id: new ObjectId(userId) })
+    );
 
     return {
       access_token,
