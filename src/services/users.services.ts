@@ -1,3 +1,5 @@
+import { resendVerifyEmailController } from './../controllers/users.controllers';
+import axios from 'axios';
 import { config } from 'dotenv';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ObjectId } from 'mongodb';
@@ -97,6 +99,68 @@ class UsersService {
     ]);
   }
 
+  private async getGoogleOAuthToken(code: string): Promise<{
+    access_token: string;
+    id_token: string;
+    token_type: string;
+    scope: string;
+    expires_in: number;
+  }> {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SCECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    };
+
+    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    return data;
+  }
+
+  private async getGoogleProfile({
+    access_token,
+    id_token
+  }: {
+    access_token: string;
+    id_token: string;
+  }): Promise<{
+    id: string;
+    email: string;
+    verified_email: string;
+    name: string;
+    picture: string;
+  }> {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+      params: {
+        access_token,
+        alt: 'json'
+      },
+      headers: {
+        Authorization: `Bearer ${id_token}`
+      }
+    });
+
+    return data;
+  }
+
+  private async insertRefreshTokenToDB({
+    refresh_token,
+    user_id
+  }: {
+    refresh_token: string;
+    user_id: ObjectId;
+  }) {
+    await databaseService.refreshToken.insertOne(
+      new RefreshToken({ token: refresh_token, user_id })
+    );
+  }
+
   async register(body: RegisterReqBody) {
     const userId = new ObjectId();
     const email_verify_token = await this.signEmailTokenVerify({
@@ -120,9 +184,7 @@ class UsersService {
       verify: UserVerifyStatus.Unverified
     });
 
-    databaseService.refreshToken.insertOne(
-      new RefreshToken({ token: refresh_token, user_id: new ObjectId(userId) })
-    );
+    await this.insertRefreshTokenToDB({ refresh_token, user_id: new ObjectId(userId) });
 
     return {
       access_token,
@@ -133,14 +195,83 @@ class UsersService {
   async login({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ user_id, verify });
 
-    databaseService.refreshToken.insertOne(
-      new RefreshToken({ token: refresh_token, user_id: new ObjectId(user_id) })
-    );
+    await this.insertRefreshTokenToDB({ refresh_token, user_id: new ObjectId(user_id) });
 
     return {
       access_token,
       refresh_token
     };
+  }
+
+  async oauth(code: string) {
+    const data = await this.getGoogleOAuthToken(code);
+
+    const { access_token, id_token } = data;
+
+    const profile = await this.getGoogleProfile({ access_token, id_token });
+
+    if (!profile.verified_email) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.USER_NOT_VERIFIED,
+        status: HTTP_STATUS.FORBIDEN
+      });
+    }
+
+    const user = await databaseService.users.findOne({ email: profile.email });
+
+    //Nếu tìm thấy user trong db thì sign access_token refresh_token
+    //Nếu không tìm thấy thì thêm profile vào trong db users với password random
+    if (!user) {
+      const randomPassword = Math.random().toString(36).substring(2, 25);
+
+      const userId = new ObjectId();
+
+      const email_verify_token = await this.signEmailTokenVerify({
+        user_id: userId.toString(),
+        verify: UserVerifyStatus.Unverified
+      });
+
+      await databaseService.users.insertOne(
+        new User({
+          _id: userId,
+          name: profile.name,
+          username: 'user' + userId.toString(),
+          email: profile.email,
+          password: randomPassword,
+          verify: UserVerifyStatus.Unverified,
+          avatar: profile.picture,
+          email_verify_token
+        })
+      );
+
+      const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+        user_id: userId.toString(),
+        verify: UserVerifyStatus.Unverified
+      });
+
+      await this.insertRefreshTokenToDB({ refresh_token, user_id: new ObjectId(userId) });
+
+      return {
+        access_token,
+        refresh_token,
+        new_user: 1,
+        verified: UserVerifyStatus.Unverified
+      };
+    } else {
+      const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+        user_id: user._id.toString(),
+        verify: user.verify
+      });
+
+      await this.insertRefreshTokenToDB({ refresh_token, user_id: user._id });
+
+      return {
+        access_token,
+        refresh_token,
+        new_user: 0,
+        verified: user.verify
+      };
+    }
   }
 
   async checkExistEmail(email: string) {
@@ -173,9 +304,7 @@ class UsersService {
 
     const [access_token, refresh_token] = token;
 
-    databaseService.refreshToken.insertOne(
-      new RefreshToken({ token: refresh_token, user_id: new ObjectId(userId) })
-    );
+    await this.insertRefreshTokenToDB({ refresh_token, user_id: new ObjectId(userId) });
 
     return {
       access_token,

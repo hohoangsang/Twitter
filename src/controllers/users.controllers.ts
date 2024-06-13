@@ -40,6 +40,16 @@ export const loginController = async (
   });
 };
 
+export const oauthController = async (req: Request, res: Response, next: NextFunction) => {
+  const { code } = req.query;
+
+  const result = await usersService.oauth(code as string);
+
+  const urlRedirect = `${process.env.CLIENT_LOGIN_OAUTH}?access_token=${result.access_token}&refresh_token=${result.refresh_token}&new_user=${result.new_user}&verified=${result.verified}`;
+
+  return res.redirect(urlRedirect);
+};
+
 export const registerController = async (
   req: Request<ParamsDictionary, any, RegisterReqBody>,
   res: Response
