@@ -2,6 +2,8 @@ import express from 'express';
 import { defaultErrorHandler } from '~/middlewares/errors.middleware';
 import userRouter from '~/routes/users.routes';
 import databaseService from '~/services/database.services';
+import mediasRouter from '~/routes/medias.routes';
+import { initFolder } from './utils/file';
 
 const app = express();
 
@@ -11,7 +13,11 @@ app.use(express.json());
 
 const port = 4000;
 
+//Tạo những folder cần thiết khi run server
+initFolder();
+
 app.use('/users', userRouter);
+app.use('/medias', mediasRouter);
 
 /**
  * Đây là error handler, bắt buộc phải được đặt ở vị trí cuối cùng sau những middleware function khác
