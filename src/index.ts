@@ -3,8 +3,9 @@ import { defaultErrorHandler } from '~/middlewares/errors.middleware';
 import userRouter from '~/routes/users.routes';
 import databaseService from '~/services/database.services';
 import mediasRouter from '~/routes/medias.routes';
-import { initFolder } from './utils/file';
+import { initFolder } from '~/utils/file';
 import { config } from 'dotenv';
+import staticRoutes from '~/routes/static.routes';
 
 config();
 
@@ -21,6 +22,7 @@ initFolder();
 
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
+app.use('/static', staticRoutes);
 
 /**
  * Đây là error handler, bắt buộc phải được đặt ở vị trí cuối cùng sau những middleware function khác

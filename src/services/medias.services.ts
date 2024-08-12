@@ -3,7 +3,6 @@ import path from 'path';
 import sharp from 'sharp';
 import { getNameFromFullName, handleUploadSingleFile } from '~/utils/file';
 import fs from 'fs';
-import { FILE_UPLOAD_TEMP_DIR } from '~/constants/dir';
 import { config } from 'dotenv';
 import { isDevelopment } from '~/constants/config';
 
@@ -24,16 +23,18 @@ class MediaService {
           return;
         }
 
-        try {
-          fs.unlinkSync(file.filepath);
-        } catch (error) {
-          console.log('Error when try to delete file path', error);
-        }
+        fs.unlink(file.filepath, (err) => {
+          if (err) {
+            console.error('Error when try to delete image in temp directory', err);
+          } else {
+            console.log('File deleted successfully');
+          }
+        });
       });
 
     const newUrlFile = isDevelopment
-      ? `http://localhost/uploads/${newName}`
-      : `${process.env.HOST}/uploads/${newName}`;
+      ? `http://localhost:${process.env.PORT}/static/image/${newName}`
+      : `${process.env.HOST}/static/image/${newName}`;
 
     return newUrlFile;
   }
