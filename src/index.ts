@@ -5,8 +5,6 @@ import databaseService from '~/services/database.services';
 import mediasRouter from '~/routes/medias.routes';
 import { initFolder } from './utils/file';
 import { config } from 'dotenv';
-import yargs from 'yargs/yargs';
-import { hideBin } from 'yargs/helpers';
 
 config();
 
