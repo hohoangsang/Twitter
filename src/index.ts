@@ -4,6 +4,11 @@ import userRouter from '~/routes/users.routes';
 import databaseService from '~/services/database.services';
 import mediasRouter from '~/routes/medias.routes';
 import { initFolder } from './utils/file';
+import { config } from 'dotenv';
+import yargs from 'yargs/yargs';
+import { hideBin } from 'yargs/helpers';
+
+config();
 
 const app = express();
 
@@ -11,7 +16,7 @@ databaseService.connect();
 
 app.use(express.json());
 
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 //Tạo những folder cần thiết khi run server
 initFolder();

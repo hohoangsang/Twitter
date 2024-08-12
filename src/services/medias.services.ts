@@ -4,6 +4,10 @@ import sharp from 'sharp';
 import { getNameFromFullName, handleUploadSingleFile } from '~/utils/file';
 import fs from 'fs';
 import { FILE_UPLOAD_TEMP_DIR } from '~/constants/dir';
+import { config } from 'dotenv';
+import { isDevelopment } from '~/constants/config';
+
+config();
 
 class MediaService {
   async processSingleImage(req: Request) {
@@ -27,7 +31,9 @@ class MediaService {
         }
       });
 
-    const newUrlFile = `http://localhost/uploads/${newName}`;
+    const newUrlFile = isDevelopment
+      ? `http://localhost/uploads/${newName}`
+      : `${process.env.HOST}/uploads/${newName}`;
 
     return newUrlFile;
   }
