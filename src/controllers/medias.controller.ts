@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
 import path from 'path';
-import { send } from 'process';
 import mediaService from '~/services/medias.services';
 
-export const uploadSingleImageController = async (req: Request, res: Response) => {
-  const url = await mediaService.processSingleImage(req);
+export const uploadImagesController = async (req: Request, res: Response) => {
+  const result = await mediaService.processImages(req);
 
-  return res.json({ message: 'Upload successfully', result: url });
+  return res.json({ message: 'Upload successfully', result });
 };
 
 export const serveSingleImage = (req: Request, res: Response) => {

@@ -1,9 +1,8 @@
-import { FILE_IMAGE_TYPE } from './../constants/file';
 import { Request } from 'express';
 import { File, Files } from 'formidable';
 import fs from 'fs';
 import { FILE_UPLOAD_TEMP_DIR } from '~/constants/dir';
-import { MAX_SINGLE_IMAGE_SIZE } from '~/constants/file';
+import { MAX_SINGLE_IMAGE_SIZE, FILE_IMAGE_TYPE, MAX_IMAGE_UPLOAD } from '~/constants/file';
 
 export const initFolder = () => {
   const uploadFolderPath = FILE_UPLOAD_TEMP_DIR;
@@ -23,15 +22,15 @@ export const getNameFromFullName = (fileName: string) => {
   return arr.join('');
 };
 
-export const handleUploadSingleFile = async (req: Request): Promise<File> => {
+export const handleUploadImages = async (req: Request): Promise<File[]> => {
   const formidable = (await import('formidable')).default; //Import thư viện kiểu ES6 vào source code ES module
 
   const form = formidable({
     uploadDir: FILE_UPLOAD_TEMP_DIR,
-    maxFiles: 1,
+    maxFiles: MAX_IMAGE_UPLOAD, //max file amount
     maxFileSize: MAX_SINGLE_IMAGE_SIZE,
+    maxTotalFileSize: MAX_SINGLE_IMAGE_SIZE * MAX_IMAGE_UPLOAD,
     keepExtensions: true,
-    multiples: false,
     filter: ({ mimetype, name, originalFilename }) => {
       const valid = name === 'image' && mimetype?.includes('image/');
 
@@ -56,9 +55,7 @@ export const handleUploadSingleFile = async (req: Request): Promise<File> => {
         reject(new Error('Invalid file'));
       }
 
-      ((files as Files).image as File[])[0];
-
-      resolve((files.image as File[])[0]);
+      resolve(files.image as File[]);
     });
   });
 };
