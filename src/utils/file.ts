@@ -84,16 +84,17 @@ export const handleUploadVideo = async (req: Request): Promise<File[]> => {
   const formidable = (await import('formidable')).default;
 
   const form = formidable({
-    uploadDir: UPLOAD_VIDEO_TEMP_DIR,
+    uploadDir: UPLOAD_VIDEO_DIR,
     maxFiles: MAX_VIDEO_UPLOAD, //max file amount
     maxFileSize: MAX_SINGLE_VIDEO_SIZE,
     filter: ({ mimetype, name, originalFilename }) => {
-      // const valid = name === 'image' && mimetype?.includes('image/');
+      const valid =
+        name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'));
 
-      // if (!valid) {
-      //   form.emit('error' as any, new Error('Invalid file type') as any);
-      //   return false;
-      // }
+      if (!valid) {
+        form.emit('error' as any, new Error('Invalid file type') as any);
+        return false;
+      }
 
       return true;
     }
@@ -121,7 +122,7 @@ export const handleUploadVideo = async (req: Request): Promise<File[]> => {
 
         newName = newName + '.' + ext;
 
-        fs.renameSync(video.filepath, path.resolve(UPLOAD_VIDEO_TEMP_DIR, newName));
+        fs.renameSync(video.filepath, path.resolve(UPLOAD_VIDEO_DIR, newName));
 
         video.newFilename = newName;
       });

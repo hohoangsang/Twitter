@@ -23,6 +23,7 @@ initFolder();
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
+// app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
 
 /**
  * Đây là error handler, bắt buộc phải được đặt ở vị trí cuối cùng sau những middleware function khác
