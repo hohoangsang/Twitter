@@ -9,6 +9,7 @@ import {
   loginController,
   logoutController,
   oauthController,
+  refreshTokenController,
   registerController,
   resendVerifyEmailController,
   resetPasswordController,
@@ -68,6 +69,21 @@ userRouter.get('/oauth/google', wrapRequestHandler(oauthController));
  * }
  */
 userRouter.post('/register', registerValidator, wrapRequestHandler(registerController));
+
+/**
+ * Description: Refresh token
+ * Methods: POST
+ * Path: /refresh-access-token
+ * Body: {
+ *  refresh_token: string
+ * }
+ */
+
+userRouter.post(
+  '/refresh-access-token',
+  refreshTokenValidator,
+  wrapRequestHandler(refreshTokenController)
+);
 
 /**
  * Description: Logout user

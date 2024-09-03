@@ -161,6 +161,10 @@ class UsersService {
     );
   }
 
+  private async deleteRefreshTokenFromDB(token: string) {
+    await databaseService.refreshToken.deleteOne({ token });
+  }
+
   async register(body: RegisterReqBody) {
     const userId = new ObjectId();
     const email_verify_token = await this.signEmailTokenVerify({
@@ -277,6 +281,35 @@ class UsersService {
   async checkExistEmail(email: string) {
     const result = await databaseService.users.findOne({ email });
     return Boolean(result);
+  }
+
+  async refreshToken({ user_id, refreshTokenReq }: { user_id: string; refreshTokenReq: string }) {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) });
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        message: USERS_MESSAGES.INVALID_USER_ID,
+        status: HTTP_STATUS.INTERNAL_SERVER_ERROR
+      });
+    }
+
+    const { verify, _id } = user;
+
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+      user_id: _id.toString(),
+      verify
+    });
+
+    //delete old refresh_token and add new refresh_token into database
+    await Promise.all([
+      this.insertRefreshTokenToDB({ refresh_token, user_id: _id }),
+      this.deleteRefreshTokenFromDB(refreshTokenReq)
+    ]);
+
+    return {
+      access_token,
+      refresh_token
+    };
   }
 
   async logout(token: string) {

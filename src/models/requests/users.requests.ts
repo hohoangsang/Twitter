@@ -69,3 +69,7 @@ export type ChangePasswordReqBody = {
   old_password: string;
   new_password: string;
 };
+
+export type RefreshTokenReqBody = {
+  refresh_token: string;
+};
