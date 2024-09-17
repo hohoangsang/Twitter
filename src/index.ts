@@ -11,7 +11,9 @@ config();
 
 const app = express();
 
-databaseService.connect();
+databaseService.connect().then(() => {
+  databaseService.indexUsers();
+});
 
 app.use(express.json());
 

@@ -38,6 +38,15 @@ class DatabaseService {
   get follower(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTIONS as string);
   }
+
+  async indexUsers() {
+    const usersCollection = this.users;
+
+    await usersCollection.createIndex({ email: 1 }, { unique: true });
+    await usersCollection.createIndex({ username: 1 }, { unique: true });
+    await usersCollection.createIndex({ email: 1, password: 1 });
+    await usersCollection.createIndex({ email_verify_token: 1 });
+  }
 }
 
 //create object from class DatabaseService
