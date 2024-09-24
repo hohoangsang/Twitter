@@ -36,16 +36,47 @@ class DatabaseService {
   }
 
   get follower(): Collection<Follower> {
-    return this.db.collection(process.env.DB_FOLLOWERS_COLLECTIONS as string);
+    return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string);
   }
 
   async indexUsers() {
     const usersCollection = this.users;
 
+    const existedIndexUsers = await usersCollection.indexExists([
+      'email_1',
+      'username_1',
+      'email_1_password_1',
+      'email_verify_token_1'
+    ]);
+
+    if (existedIndexUsers) return;
+
     await usersCollection.createIndex({ email: 1 }, { unique: true });
     await usersCollection.createIndex({ username: 1 }, { unique: true });
     await usersCollection.createIndex({ email: 1, password: 1 });
     await usersCollection.createIndex({ email_verify_token: 1 });
+  }
+
+  async indexRefreshTokens() {
+    const existedIndexRefreshTokens = await this.refreshToken.indexExists(['token_1', 'exp_1']);
+
+    if (existedIndexRefreshTokens) return;
+
+    await this.refreshToken.createIndex({ token: 1 });
+    await this.refreshToken.createIndex(
+      { exp: 1 },
+      {
+        expireAfterSeconds: 0
+      }
+    );
+  }
+
+  async indexFollowers() {
+    const existedIndexFollowers = await this.follower.indexExists(['user_id_1_followed_user_id_1']);
+
+    if (existedIndexFollowers) return;
+
+    await this.follower.createIndex({ user_id: 1, followed_user_id: 1 });
   }
 }
 

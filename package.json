@@ -44,7 +44,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mime": "^4.0.4",
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.9.0",
     "sharp": "^0.33.4",
     "yargs": "^17.7.2"
   }
