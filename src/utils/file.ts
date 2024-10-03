@@ -83,13 +83,27 @@ export const handleUploadImages = async (req: Request): Promise<File[]> => {
 export const handleUploadVideo = async (req: Request): Promise<File[]> => {
   const formidable = (await import('formidable')).default;
 
+  const nanoId = (await import('nanoid')).nanoid;
+
+  const idName = nanoId();
+
+  const filePath = path.resolve(UPLOAD_VIDEO_DIR, idName);
+
+  fs.mkdirSync(filePath);
+
   const form = formidable({
-    uploadDir: UPLOAD_VIDEO_DIR,
+    uploadDir: filePath,
     maxFiles: MAX_VIDEO_UPLOAD, //max file amount
     maxFileSize: MAX_SINGLE_VIDEO_SIZE,
     filter: ({ mimetype, name, originalFilename }) => {
       const valid =
-        name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'));
+        name === 'video' &&
+        Boolean(
+          mimetype?.includes('mp4') ||
+            mimetype?.includes('quicktime') ||
+            mimetype?.includes('octet-stream')
+        );
+      // const valid = name === 'video';
 
       if (!valid) {
         form.emit('error' as any, new Error('Invalid file type') as any);
@@ -97,6 +111,9 @@ export const handleUploadVideo = async (req: Request): Promise<File[]> => {
       }
 
       return true;
+    },
+    filename: () => {
+      return idName;
     }
   });
 
@@ -112,8 +129,6 @@ export const handleUploadVideo = async (req: Request): Promise<File[]> => {
         reject(new Error('Invalid file'));
       }
 
-      console.log(files.video);
-
       //Handle sanitize file name and add extension to file name - start
       files.video?.forEach((video) => {
         let newName = video.newFilename;
@@ -122,9 +137,10 @@ export const handleUploadVideo = async (req: Request): Promise<File[]> => {
 
         newName = newName + '.' + ext;
 
-        fs.renameSync(video.filepath, path.resolve(UPLOAD_VIDEO_DIR, newName));
+        fs.renameSync(video.filepath, path.resolve(filePath, newName));
 
         video.newFilename = newName;
+        video.filepath = video.filepath + '.' + ext;
       });
       //Handle sanitize file name and add extension to file name - end
 

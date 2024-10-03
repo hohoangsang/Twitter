@@ -17,6 +17,12 @@ export const uploadVideoController = async (req: Request, res: Response) => {
   return res.json({ message: 'Upload successfuly', result });
 };
 
+export const uploadVideoHLSController = async (req: Request, res: Response) => {
+  const result = await mediaService.processHLSVideo(req);
+
+  return res.json({ message: 'Upload successfuly', result });
+};
+
 export const serveImageController = (req: Request, res: Response) => {
   const name = req.params.name;
 
@@ -100,3 +106,5 @@ export const serveVideoStreamController = async (
   const videoStreams = fs.createReadStream(videoPath, { start, end });
   videoStreams.pipe(res);
 };
+
+export const serveM3u8Controller = async (req: Request, res: Response) => {};
