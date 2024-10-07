@@ -6,6 +6,7 @@ import mediasRouter from '~/routes/medias.routes';
 import { initFolder } from '~/utils/file';
 import { config } from 'dotenv';
 import staticRoutes from '~/routes/static.routes';
+import cors from 'cors';
 
 config();
 
@@ -23,6 +24,8 @@ const port = process.env.PORT || 4000;
 
 //Tạo những folder cần thiết khi run server
 initFolder();
+
+app.use(cors());
 
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);

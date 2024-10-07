@@ -107,4 +107,25 @@ export const serveVideoStreamController = async (
   videoStreams.pipe(res);
 };
 
-export const serveM3u8Controller = async (req: Request, res: Response) => {};
+export const serveM3u8Controller = async (req: Request<{ id: string }>, res: Response) => {
+  const idName = req.params.id;
+
+  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, idName, 'master.m3u8'), (err: Error) => {
+    if (err) {
+      res.status((err as any).status).send('Not found');
+    }
+  });
+};
+
+export const serveSegmentController = async (
+  req: Request<{ id: string; v: string; segment: string }>,
+  res: Response
+) => {
+  const { id, segment, v } = req.params;
+
+  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err: Error) => {
+    if (err) {
+      res.status((err as any).status).send('Not found');
+    }
+  });
+};
