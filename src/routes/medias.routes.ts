@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  getStatusEncodeHlSController,
   uploadImagesController,
   uploadVideoController,
   uploadVideoHLSController
@@ -28,6 +29,13 @@ mediasRouter.post(
   accessTokenValidator,
   verifiedUserValidator,
   wrapRequestHandler(uploadVideoHLSController)
+);
+
+mediasRouter.get(
+  '/upload-video-hls/status/:idName',
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(getStatusEncodeHlSController)
 );
 
 export default mediasRouter;

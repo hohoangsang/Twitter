@@ -16,6 +16,7 @@ databaseService.connect().then(() => {
   databaseService.indexUsers();
   databaseService.indexRefreshTokens();
   databaseService.indexFollowers();
+  databaseService.indexVideoStatus();
 });
 
 app.use(express.json());

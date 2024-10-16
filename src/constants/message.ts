@@ -65,3 +65,8 @@ export const USERS_MESSAGES = {
   REFRESH_TOKEN_SUCCESS: 'Refresh token success',
   USER_UNDEFINED: 'User is undefinded'
 } as const;
+
+export const MEDIA_MESSAGES = {
+  IDNAME_NOTFOUND: 'Id name not found',
+  GET_VIDEO_STATUS_SUCCESS: 'Get video status success'
+} as const;

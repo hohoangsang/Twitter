@@ -2,12 +2,7 @@ import { Request } from 'express';
 import { File, Files } from 'formidable';
 import fs from 'fs';
 import path from 'path';
-import {
-  UPLOAD_IMAGE_DIR,
-  UPLOAD_IMAGE_TEMP_DIR,
-  UPLOAD_VIDEO_DIR,
-  UPLOAD_VIDEO_TEMP_DIR
-} from '~/constants/dir';
+import { UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir';
 import {
   MAX_SINGLE_IMAGE_SIZE,
   FILE_IMAGE_TYPE,
@@ -18,12 +13,7 @@ import {
 } from '~/constants/file';
 
 export const initFolder = () => {
-  const filePath = [
-    UPLOAD_IMAGE_DIR,
-    UPLOAD_IMAGE_TEMP_DIR,
-    UPLOAD_VIDEO_DIR,
-    UPLOAD_VIDEO_TEMP_DIR
-  ];
+  const filePath = [UPLOAD_IMAGE_DIR, UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR];
 
   filePath.forEach((path) => {
     if (!fs.existsSync(path)) {

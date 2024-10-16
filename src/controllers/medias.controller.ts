@@ -4,6 +4,7 @@ import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import mediaService from '~/services/medias.services';
 import fs from 'fs';
+import { MEDIA_MESSAGES } from '~/constants/message';
 
 export const uploadImagesController = async (req: Request, res: Response) => {
   const result = await mediaService.processImages(req);
@@ -127,5 +128,19 @@ export const serveSegmentController = async (
     if (err) {
       res.status((err as any).status).send('Not found');
     }
+  });
+};
+
+export const getStatusEncodeHlSController = async (
+  req: Request<{ idName: string }>,
+  res: Response
+) => {
+  const { idName } = req.params;
+
+  const result = await mediaService.getStatusEncodeHlS(idName);
+
+  return res.send({
+    result,
+    message: MEDIA_MESSAGES.GET_VIDEO_STATUS_SUCCESS
   });
 };

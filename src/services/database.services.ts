@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import User from '~/models/schemas/user.schema';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import Follower from '~/models/schemas/follower.schema';
+import StatusVideos from '~/models/schemas/statusVideos.schema';
 
 config();
 
@@ -37,6 +38,10 @@ class DatabaseService {
 
   get follower(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string);
+  }
+
+  get statusVideos(): Collection<StatusVideos> {
+    return this.db.collection(process.env.DB_STATUS_VIDEOS_COLLECTION as string);
   }
 
   async indexUsers() {
@@ -77,6 +82,14 @@ class DatabaseService {
     if (existedIndexFollowers) return;
 
     await this.follower.createIndex({ user_id: 1, followed_user_id: 1 });
+  }
+
+  async indexVideoStatus() {
+    const existedIndexStatusVideo = await this.statusVideos.indexExists(['idName_1']);
+
+    if (existedIndexStatusVideo) return;
+
+    await this.statusVideos.createIndex({ idName: 1 }, { unique: true });
   }
 }
 
