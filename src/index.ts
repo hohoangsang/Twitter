@@ -7,6 +7,7 @@ import { initFolder } from '~/utils/file';
 import { config } from 'dotenv';
 import staticRoutes from '~/routes/static.routes';
 import cors from 'cors';
+import tweetRouter from './routes/tweets.routes';
 
 config();
 
@@ -31,6 +32,7 @@ app.use(cors());
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
+app.use('/tweet', tweetRouter);
 // app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
 
 /**

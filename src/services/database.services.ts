@@ -4,6 +4,7 @@ import User from '~/models/schemas/user.schema';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import Follower from '~/models/schemas/follower.schema';
 import StatusVideos from '~/models/schemas/statusVideos.schema';
+import Tweet from '~/models/schemas/tweet.schema';
 
 config();
 
@@ -42,6 +43,10 @@ class DatabaseService {
 
   get statusVideos(): Collection<StatusVideos> {
     return this.db.collection(process.env.DB_STATUS_VIDEOS_COLLECTION as string);
+  }
+
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.DB_TWEETS_COLLECTION as string);
   }
 
   async indexUsers() {

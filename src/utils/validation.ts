@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { validationResult, ValidationChain } from 'express-validator';
 import { RunnableValidationChains } from 'express-validator/src/middlewares/schema';
+import { MediaType } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
+import { Media } from '~/models/Other';
 import { ErrorEntity, ErrorWithStatus } from '~/models/errors';
 
 export const validate = (validation: RunnableValidationChains<ValidationChain>) => {
@@ -30,3 +32,11 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
     next(errorsEntity);
   };
 };
+
+export function isMediaType(obj: any): obj is Media {
+  return (
+    typeof obj === 'object' &&
+    typeof obj.url === 'string' &&
+    Boolean(Object.values(MediaType).includes(obj.type))
+  );
+}

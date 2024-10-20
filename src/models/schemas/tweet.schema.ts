@@ -8,8 +8,8 @@ export interface TweetConstructor {
   content: string;
   audience: TweetAudience;
   medias?: Media[];
-  hashtags?: ObjectId[];
-  mentions?: ObjectId[];
+  hashtags?: string[];
+  mentions?: string[]; // string dạng id
   parent_id: null | string; //  chỉ null khi tweet gốc
   type: TweetType;
   created_at?: Date;
@@ -23,8 +23,8 @@ export default class Tweet {
   audience: TweetAudience;
   content: string;
   parent_id: null | string;
-  hashtags: ObjectId[];
-  mentions: ObjectId[];
+  hashtags: string[];
+  mentions: string[];
   medias: Media[];
   guest_views?: number;
   user_views?: number;

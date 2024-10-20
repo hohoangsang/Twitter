@@ -12,9 +12,9 @@ export enum TokenType {
 }
 
 export enum MediaType {
-  Image,
-  Video,
-  HLS
+  Image = 'IMAGE',
+  Video = 'VIDEO',
+  HLS = 'HLS'
 }
 
 export enum EncodeHLSType {
@@ -25,13 +25,13 @@ export enum EncodeHLSType {
 }
 
 export enum TweetType {
-  Tweet,
-  Retweet,
-  Comment,
-  QuoteTweet
+  Tweet = 'TWEET',
+  Retweet = 'RETWEET',
+  Comment = 'COMMENT',
+  QuoteTweet = 'QUOTETWEET'
 }
 
 export enum TweetAudience {
-  Everyone,
-  TwitterCircle
+  Everyone = 'EVERYONE',
+  TwitterCircle = 'TWITTERCIRCLE'
 }
