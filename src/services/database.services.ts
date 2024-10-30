@@ -5,6 +5,7 @@ import RefreshToken from '~/models/schemas/refreshToken.schema';
 import Follower from '~/models/schemas/follower.schema';
 import StatusVideos from '~/models/schemas/statusVideos.schema';
 import Tweet from '~/models/schemas/tweet.schema';
+import Hashtag from '~/models/schemas/hashtag.schema';
 
 config();
 
@@ -47,6 +48,10 @@ class DatabaseService {
 
   get tweets(): Collection<Tweet> {
     return this.db.collection(process.env.DB_TWEETS_COLLECTION as string);
+  }
+
+  get hashtags(): Collection<Hashtag> {
+    return this.db.collection(process.env.DB_HASHTAGS_COLLECTION as string);
   }
 
   async indexUsers() {
