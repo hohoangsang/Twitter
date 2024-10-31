@@ -242,8 +242,8 @@ userRouter.post(
  * Header: {
  *    Authorization: `Bearer ${access_token}`
  * }
- * Body: {
- *    followed_user_id: string;
+ * params: {
+ *    followedUserId: string;
  * }
  */
 

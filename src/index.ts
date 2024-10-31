@@ -7,7 +7,8 @@ import { initFolder } from '~/utils/file';
 import { config } from 'dotenv';
 import staticRoutes from '~/routes/static.routes';
 import cors from 'cors';
-import tweetRouter from './routes/tweets.routes';
+import tweetRouter from '~/routes/tweets.routes';
+import bookmarksRouter from '~/routes/bookmarks.routes';
 
 config();
 
@@ -18,6 +19,8 @@ databaseService.connect().then(() => {
   databaseService.indexRefreshTokens();
   databaseService.indexFollowers();
   databaseService.indexVideoStatus();
+  databaseService.indexHashtags();
+  databaseService.indexBookmark();
 });
 
 app.use(express.json());
@@ -33,6 +36,7 @@ app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
 app.use('/tweet', tweetRouter);
+app.use('/bookmarks', bookmarksRouter);
 // app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
 
 /**
