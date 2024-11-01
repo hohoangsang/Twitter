@@ -9,6 +9,7 @@ import staticRoutes from '~/routes/static.routes';
 import cors from 'cors';
 import tweetRouter from '~/routes/tweets.routes';
 import bookmarksRouter from '~/routes/bookmarks.routes';
+import likesRouter from './routes/likes.routes';
 
 config();
 
@@ -21,6 +22,7 @@ databaseService.connect().then(() => {
   databaseService.indexVideoStatus();
   databaseService.indexHashtags();
   databaseService.indexBookmark();
+  databaseService.indexLike();
 });
 
 app.use(express.json());
@@ -37,6 +39,7 @@ app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
 app.use('/tweet', tweetRouter);
 app.use('/bookmarks', bookmarksRouter);
+app.use('/likes', likesRouter);
 // app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
 
 /**

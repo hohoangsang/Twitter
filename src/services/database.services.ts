@@ -7,6 +7,7 @@ import StatusVideos from '~/models/schemas/statusVideos.schema';
 import Tweet from '~/models/schemas/tweet.schema';
 import Hashtag from '~/models/schemas/hashtag.schema';
 import Bookmarks from '~/models/schemas/bookmark.shema';
+import Like from '~/models/schemas/like.schema';
 
 config();
 
@@ -57,6 +58,10 @@ class DatabaseService {
 
   get bookmarks(): Collection<Bookmarks> {
     return this.db.collection(process.env.DB_BOOKMARKS_COLLECTION as string);
+  }
+
+  get likes(): Collection<Like> {
+    return this.db.collection(process.env.DB_LIKES_COLLECTION as string);
   }
 
   async indexUsers() {
@@ -121,6 +126,14 @@ class DatabaseService {
     if (existedIndexBookmark) return;
 
     await this.bookmarks.createIndex({ tweet_id: 1, user_id: 1 });
+  }
+
+  async indexLike() {
+    const existedIndexLike = await this.likes.indexExists(['tweet_id_1_user_id_1']);
+
+    if (existedIndexLike) return;
+
+    await this.likes.createIndex({ tweet_id: 1, user_id: 1 });
   }
 }
 
