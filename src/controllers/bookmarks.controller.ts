@@ -4,7 +4,7 @@ import { BookmarkReqBody } from '~/models/requests/bookmarks.request';
 import { TokenPayload } from '~/models/requests/users.requests';
 import bookmarksService from '~/services/bookmarks.services';
 
-export const createBookmarkController = async (
+export const createBookmarkTweetController = async (
   request: Request<any, any, BookmarkReqBody>,
   response: Response
 ) => {
@@ -19,7 +19,7 @@ export const createBookmarkController = async (
   });
 };
 
-export const unBookmarkController = async (
+export const unBookmarkTweetController = async (
   request: Request<{ tweetId: string }>,
   response: Response
 ) => {

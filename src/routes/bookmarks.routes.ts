@@ -1,5 +1,8 @@
 import express from 'express';
-import { createBookmarkController, unBookmarkController } from '~/controllers/bookmarks.controller';
+import {
+  createBookmarkTweetController,
+  unBookmarkTweetController
+} from '~/controllers/bookmarks.controller';
 import { createBookmarkValidator, unBookmarkValidator } from '~/middlewares/bookmarks.middleware';
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
@@ -22,16 +25,13 @@ bookmarksRouter.post(
   accessTokenValidator,
   verifiedUserValidator,
   createBookmarkValidator,
-  wrapRequestHandler(createBookmarkController)
+  wrapRequestHandler(createBookmarkTweetController)
 );
 
 /**
  * Description: unBookmark
  * Methods: DELETE
- * Path: /
- * params: {
- *    tweetId: string
- * }
+ * Path: /tweet/:tweetId
  * Header: {
  *    Authorization: `Bearer ${access_token}`
  * }
@@ -41,7 +41,7 @@ bookmarksRouter.delete(
   accessTokenValidator,
   verifiedUserValidator,
   unBookmarkValidator,
-  wrapRequestHandler(unBookmarkController)
+  wrapRequestHandler(unBookmarkTweetController)
 );
 
 export default bookmarksRouter;

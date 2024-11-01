@@ -1,5 +1,5 @@
 import express from 'express';
-import { likeController, unLikeController } from '~/controllers/likes.controller';
+import { likeTweetController, unLikeTweetController } from '~/controllers/likes.controller';
 import { createLikeValidator, unLikeValidator } from '~/middlewares/likes.middleware';
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
@@ -22,16 +22,13 @@ likesRouter.post(
   accessTokenValidator,
   verifiedUserValidator,
   createLikeValidator,
-  wrapRequestHandler(likeController)
+  wrapRequestHandler(likeTweetController)
 );
 
 /**
  * Description: unLike
  * Methods: DELETE
- * Path: /
- * params: {
- *    tweetId: string
- * }
+ * Path: /tweet/:tweetId
  * Header: {
  *    Authorization: `Bearer ${access_token}`
  * }
@@ -41,7 +38,7 @@ likesRouter.delete(
   accessTokenValidator,
   verifiedUserValidator,
   unLikeValidator,
-  wrapRequestHandler(unLikeController)
+  wrapRequestHandler(unLikeTweetController)
 );
 
 export default likesRouter;

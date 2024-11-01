@@ -4,7 +4,7 @@ import { LikeReqBody } from '~/models/requests/likes.request';
 import { TokenPayload } from '~/models/requests/users.requests';
 import likeService from '~/services/likes.services';
 
-export const likeController = async (
+export const likeTweetController = async (
   request: Request<any, any, LikeReqBody>,
   response: Response
 ) => {
@@ -19,7 +19,7 @@ export const likeController = async (
   });
 };
 
-export const unLikeController = async (
+export const unLikeTweetController = async (
   request: Request<{ tweetId: string }>,
   response: Response
 ) => {
