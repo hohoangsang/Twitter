@@ -1,6 +1,6 @@
 import express from 'express';
 import { likeTweetController, unLikeTweetController } from '~/controllers/likes.controller';
-import { createLikeValidator, unLikeValidator } from '~/middlewares/likes.middleware';
+import { tweetIdValidator } from '~/middlewares/tweets.middleware';
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
 
@@ -21,7 +21,7 @@ likesRouter.post(
   '/',
   accessTokenValidator,
   verifiedUserValidator,
-  createLikeValidator,
+  tweetIdValidator,
   wrapRequestHandler(likeTweetController)
 );
 
@@ -37,7 +37,7 @@ likesRouter.delete(
   '/tweet/:tweetId',
   accessTokenValidator,
   verifiedUserValidator,
-  unLikeValidator,
+  tweetIdValidator,
   wrapRequestHandler(unLikeTweetController)
 );
 
