@@ -1,12 +1,15 @@
-import { Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { checkSchema } from 'express-validator';
 import { isEmpty } from 'lodash';
 import { ObjectId } from 'mongodb';
-import { TweetAudience, TweetType } from '~/constants/enum';
+import { TweetAudience, TweetType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
-import { TWEETS_MESSAGES } from '~/constants/message';
+import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
+import { TokenPayload } from '~/models/requests/users.requests';
+import Tweet from '~/models/schemas/tweet.schema';
 import databaseService from '~/services/database.services';
+import { wrapRequestHandler } from '~/utils/handlers';
 import { isMediaType, validate } from '~/utils/validation';
 
 export const createTweetValidator = validate(
@@ -173,6 +176,8 @@ export const tweetIdValidator = validate(
               });
             }
 
+            (req as Request).tweet = tweet;
+
             return true;
           }
         }
@@ -180,4 +185,47 @@ export const tweetIdValidator = validate(
     },
     ['body', 'params']
   )
+);
+
+export const audienceValidator = wrapRequestHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tweet = req.tweet as Tweet;
+
+    if (tweet.audience === TweetAudience.TwitterCircle) {
+      //Kiểm tra user đã đăng nhập hay chưa
+      if (!req.headers.authorization) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.UNAUTHORIZED,
+          message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
+        });
+      }
+
+      //Kiểm tra tài khoản của tác giả có còn hoạt động không (chưa bị xoá và không bị trạng thái BAN)
+      const author = tweet.user_id;
+      const user = await databaseService.users.findOne({ _id: author });
+      if (!user || user.verify === UserVerifyStatus.Banned) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.NOT_FOUND,
+          message: USERS_MESSAGES.USER_NOT_FOUND
+        });
+      }
+
+      //Kiểm tra user gọi api có nằm trong twitter_circle của tác giả không, hoặc user call api chính là tác giả thì vẫn xem được tweet
+      const twitter_circle = user.twitter_circle;
+      const { user_id: viewer_id } = req.decoded_authorization as TokenPayload;
+      const isViewerExistTwitterCircle = twitter_circle.some((circle_id) =>
+        circle_id.equals(viewer_id)
+      );
+      const isViewerIsAuthor = tweet.user_id.equals(viewer_id);
+
+      if (!isViewerExistTwitterCircle && !isViewerIsAuthor) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.FORBIDEN,
+          message: TWEETS_MESSAGES.TWEET_IS_NOT_PUBLIC
+        });
+      }
+    }
+
+    next();
+  }
 );

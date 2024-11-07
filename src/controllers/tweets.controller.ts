@@ -21,3 +21,7 @@ export const createTweetController = async (
     result
   });
 };
+
+export const getTweetController = async (req: Request, res: Response, next: NextFunction) => {
+  return res.send('OK');
+};

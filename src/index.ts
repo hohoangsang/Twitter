@@ -37,7 +37,7 @@ app.use(cors());
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
-app.use('/tweet', tweetRouter);
+app.use('/tweets', tweetRouter);
 app.use('/bookmarks', bookmarksRouter);
 app.use('/likes', likesRouter);
 // app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
