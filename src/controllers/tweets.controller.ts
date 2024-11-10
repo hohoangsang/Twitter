@@ -23,5 +23,8 @@ export const createTweetController = async (
 };
 
 export const getTweetController = async (req: Request, res: Response, next: NextFunction) => {
-  return res.send('OK');
+  return res.send({
+    message: TWEETS_MESSAGES.GET_TWEET_SUCCESSFULLY,
+    result: req.tweet
+  });
 };
