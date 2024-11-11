@@ -244,7 +244,7 @@ export const tweetIdValidator = validate(
                             input: '$tweet_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 'RETWEET']
+                              $eq: ['$$item.type', TweetType.Retweet]
                             }
                           }
                         }
@@ -255,7 +255,7 @@ export const tweetIdValidator = validate(
                             input: '$tweet_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 'COMMENT']
+                              $eq: ['$$item.type', TweetType.Comment]
                             }
                           }
                         }
@@ -266,7 +266,7 @@ export const tweetIdValidator = validate(
                             input: '$tweet_children',
                             as: 'item',
                             cond: {
-                              $eq: ['$$item.type', 'QUOTETWEET']
+                              $eq: ['$$item.type', TweetType.QuoteTweet]
                             }
                           }
                         }

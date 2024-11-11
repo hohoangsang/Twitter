@@ -1,11 +1,12 @@
 import { ParamsDictionary } from 'express-serve-static-core';
 import { NextFunction, Request, Response } from 'express';
-import { TweetReqBody } from '~/models/requests/tweets.request';
+import { GetTweetChildrenQuery, TweetReqBody } from '~/models/requests/tweets.request';
 import tweetsService from '~/services/tweets.services';
 import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
 import { TokenPayload } from '~/models/requests/users.requests';
 import { TWEETS_MESSAGES } from '~/constants/message';
 import { ObjectId } from 'mongodb';
+import { TweetType } from '~/constants/enum';
 
 export const createTweetController = async (
   request: Request<ParamsDictionary, any, TweetReqBody>,
@@ -42,5 +43,33 @@ export const getTweetController = async (
   return res.send({
     message: TWEETS_MESSAGES.GET_TWEET_SUCCESSFULLY,
     result: tweet
+  });
+};
+
+export const getTweetChildrensController = async (
+  req: Request<{ tweet_id: string }, any, any, GetTweetChildrenQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { type, limit, page } = req.query;
+  const { tweet_id } = req.params;
+
+  const { childrens, total } = await tweetsService.getTweetChildrens({
+    page: Number(page),
+    limit: Number(limit),
+    type: type as TweetType,
+    tweet_id
+  });
+
+  return res.send({
+    message: TWEETS_MESSAGES.GET_TWEET_CHILDREN_SUCCESSFULLY,
+    result: {
+      childrens,
+      pagination: {
+        limit: Number(limit),
+        page: Number(page),
+        total
+      }
+    }
   });
 };

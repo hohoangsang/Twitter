@@ -12,3 +12,9 @@ export interface TweetReqBody {
   parent_id: null | string; //  chỉ null khi tweet gốc
   type: TweetType;
 }
+
+export interface GetTweetChildrenQuery {
+  type?: TweetType;
+  page?: number;
+  limit?: number;
+}

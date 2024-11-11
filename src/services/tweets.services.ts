@@ -4,7 +4,8 @@ import databaseService from './database.services';
 import { TWEETS_MESSAGES } from '~/constants/message';
 import { TweetReqBody } from '~/models/requests/tweets.request';
 import hashtagsService from './hashtag.services';
-import { ObjectId, WithId } from 'mongodb';
+import { Document, ObjectId, WithId } from 'mongodb';
+import { TweetType } from '~/constants/enum';
 
 config();
 
@@ -83,6 +84,150 @@ class TweetsService {
       user_views: number;
       guest_views: number;
     }>;
+  }
+
+  async getTweetChildrens({
+    type,
+    limit = 0,
+    page,
+    tweet_id
+  }: {
+    type: TweetType;
+    page?: number;
+    limit?: number;
+    tweet_id: string;
+  }) {
+    const aggregateArray: Document[] = [
+      {
+        $match: {
+          parent_id: new ObjectId(tweet_id),
+          type
+        }
+      },
+      {
+        $lookup: {
+          from: 'hashtags',
+          localField: 'hashtags',
+          foreignField: '_id',
+          as: 'hashtags'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'mentions',
+          foreignField: '_id',
+          as: 'mentions'
+        }
+      },
+      {
+        $lookup: {
+          from: 'bookmarks',
+          localField: '_id',
+          foreignField: 'tweet_id',
+          as: 'bookmarks'
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'tweet_id',
+          as: 'likes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'tweets',
+          localField: '_id',
+          foreignField: 'parent_id',
+          as: 'tweet_children'
+        }
+      },
+      {
+        $addFields: {
+          mentions: {
+            $map: {
+              input: '$mentions',
+              as: 'item',
+              in: {
+                _id: '$$item._id',
+                name: '$$item.name',
+                username: '$$item.username',
+                avatar: '$$item.avatar'
+              }
+            }
+          },
+          bookmarks: {
+            $size: '$bookmarks'
+          },
+          likes: {
+            $size: '$likes'
+          },
+          retweet_count: {
+            $size: {
+              $filter: {
+                input: '$tweet_children',
+                as: 'item',
+                cond: {
+                  $eq: ['$$item.type', TweetType.Retweet]
+                }
+              }
+            }
+          },
+          comment_count: {
+            $size: {
+              $filter: {
+                input: '$tweet_children',
+                as: 'item',
+                cond: {
+                  $eq: ['$$item.type', TweetType.Comment]
+                }
+              }
+            }
+          },
+          quote_count: {
+            $size: {
+              $filter: {
+                input: '$tweet_children',
+                as: 'item',
+                cond: {
+                  $eq: ['$$item.type', TweetType.QuoteTweet]
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          tweet_children: 0
+        }
+      }
+    ];
+
+    if (page && limit) {
+      aggregateArray.push(
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        }
+      );
+    }
+
+    const result = await databaseService.tweets.aggregate<Tweet>(aggregateArray).toArray();
+
+    const total = await databaseService.tweets.countDocuments({
+      parent_id: new ObjectId(tweet_id),
+      type
+    });
+
+    return {
+      childrens: result,
+      total
+    };
   }
 }
 

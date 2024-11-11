@@ -1,5 +1,9 @@
 import express from 'express';
-import { createTweetController, getTweetController } from '~/controllers/tweets.controller';
+import {
+  createTweetController,
+  getTweetChildrensController,
+  getTweetController
+} from '~/controllers/tweets.controller';
 import {
   audienceValidator,
   createTweetValidator,
@@ -40,6 +44,12 @@ tweetRouter.post(
   wrapRequestHandler(createTweetController)
 );
 
+/**
+ * Descriptions: get tweet detail
+ * Methods: get
+ * Path: /:tweet_id
+ */
+
 tweetRouter.get(
   '/:tweet_id',
   tweetIdValidator,
@@ -47,6 +57,25 @@ tweetRouter.get(
   isUserLoggedInValidator(verifiedUserValidator),
   audienceValidator,
   wrapRequestHandler(getTweetController)
+);
+
+/**
+ * Descriptions: get tweet childrens
+ * Methods: get
+ * Path: /:tweet_id/children
+ * Query: {
+ *  type: TweetType,
+ *  page: string,
+ *  limit: string
+ * }
+ */
+tweetRouter.get(
+  '/:tweet_id/childrens',
+  tweetIdValidator,
+  isUserLoggedInValidator(accessTokenValidator),
+  isUserLoggedInValidator(verifiedUserValidator),
+  audienceValidator,
+  wrapRequestHandler(getTweetChildrensController)
 );
 
 export default tweetRouter;
