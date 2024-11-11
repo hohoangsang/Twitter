@@ -4,7 +4,7 @@ import databaseService from './database.services';
 import { TWEETS_MESSAGES } from '~/constants/message';
 import { TweetReqBody } from '~/models/requests/tweets.request';
 import hashtagsService from './hashtag.services';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 
 config();
 
@@ -56,6 +56,33 @@ class TweetsService {
     const newlyTweet = await databaseService.tweets.findOne({ _id: result.insertedId });
 
     return newlyTweet;
+  }
+
+  async increaseViewTweet({ tweet_id, user_id }: { tweet_id: string; user_id?: string }) {
+    const inc = user_id ? { user_views: 1 } : { guest_views: 1 };
+    const result = await databaseService.tweets.findOneAndUpdate(
+      {
+        _id: new ObjectId(tweet_id)
+      },
+      {
+        $inc: inc,
+        $currentDate: {
+          updated_at: true
+        }
+      },
+      {
+        returnDocument: 'after',
+        projection: {
+          user_views: 1,
+          guest_views: 1
+        }
+      }
+    );
+
+    return result as WithId<{
+      user_views: number;
+      guest_views: number;
+    }>;
   }
 }
 
