@@ -342,3 +342,34 @@ export const audienceValidator = wrapRequestHandler(
     next();
   }
 );
+
+export const getTweetChildrensValidator = validate(
+  checkSchema(
+    {
+      type: {
+        custom: {
+          options: async (value) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.BAD_REQUEST,
+                message: TWEETS_MESSAGES.TYPE_IS_REQUIRED
+              });
+            }
+
+            console.log(Object.values(TweetType));
+
+            if (!Object.values(TweetType).includes(value)) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.BAD_REQUEST,
+                message: TWEETS_MESSAGES.INVALID_TYPE
+              });
+            }
+
+            return true;
+          }
+        }
+      }
+    },
+    ['query']
+  )
+);
