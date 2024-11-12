@@ -348,7 +348,7 @@ export const getTweetChildrensValidator = validate(
     {
       type: {
         custom: {
-          options: async (value) => {
+          options: (value) => {
             if (!value) {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.BAD_REQUEST,
@@ -356,13 +356,38 @@ export const getTweetChildrensValidator = validate(
               });
             }
 
-            console.log(Object.values(TweetType));
-
             if (!Object.values(TweetType).includes(value)) {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.BAD_REQUEST,
                 message: TWEETS_MESSAGES.INVALID_TYPE
               });
+            }
+
+            return true;
+          }
+        }
+      },
+      page: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value);
+
+            if (num < 1) {
+              throw Error('page >= 1');
+            }
+
+            return true;
+          }
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            const num = Number(value);
+            if (num > 100 || num < 1) {
+              throw new Error('1 <= limit <= 100');
             }
 
             return true;

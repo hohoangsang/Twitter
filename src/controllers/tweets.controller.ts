@@ -1,6 +1,6 @@
 import { ParamsDictionary } from 'express-serve-static-core';
 import { NextFunction, Request, Response } from 'express';
-import { GetTweetChildrenQuery, TweetReqBody } from '~/models/requests/tweets.request';
+import { GetTweetChildrenQuery, TweetParams, TweetReqBody } from '~/models/requests/tweets.request';
 import tweetsService from '~/services/tweets.services';
 import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
 import { TokenPayload } from '~/models/requests/users.requests';
@@ -25,7 +25,7 @@ export const createTweetController = async (
 };
 
 export const getTweetController = async (
-  req: Request<{ tweet_id: string }>,
+  req: Request<TweetParams>,
   res: Response,
   next: NextFunction
 ) => {
@@ -48,7 +48,7 @@ export const getTweetController = async (
 };
 
 export const getTweetChildrensController = async (
-  req: Request<{ tweet_id: string }, any, any, GetTweetChildrenQuery>,
+  req: Request<TweetParams, any, any, GetTweetChildrenQuery>,
   res: Response,
   next: NextFunction
 ) => {
