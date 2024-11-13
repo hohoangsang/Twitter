@@ -1,6 +1,6 @@
 import User from '~/models/schemas/user.schema';
 import { Request } from 'express';
-import { TokenPayload } from '~/models/requests/users.requests';
+import { TokenPayload } from '~/models/requests/user.requests';
 import Tweet from './models/schemas/tweet.schema';
 
 declare module 'express' {

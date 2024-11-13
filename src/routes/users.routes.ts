@@ -36,7 +36,7 @@ import {
   updateMeValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares';
-import { updateMeReqBody } from '~/models/requests/users.requests';
+import { updateMeReqBody } from '~/models/requests/user.requests';
 import { wrapRequestHandler } from '~/utils/handlers';
 
 const userRouter = express.Router();

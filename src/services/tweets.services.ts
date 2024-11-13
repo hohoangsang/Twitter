@@ -2,7 +2,7 @@ import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
 import { config } from 'dotenv';
 import databaseService from './database.services';
 import { TWEETS_MESSAGES } from '~/constants/message';
-import { TweetReqBody } from '~/models/requests/tweets.request';
+import { TweetReqBody } from '~/models/requests/tweet.requests';
 import hashtagsService from './hashtag.services';
 import { Document, ObjectId, WithId } from 'mongodb';
 import { TweetType } from '~/constants/enum';
@@ -47,7 +47,7 @@ class TweetsService {
         audience,
         parent_id,
         type,
-        user_id,
+        user_id: new ObjectId(user_id),
         medias,
         hashtags: hashtagsObjectId,
         mentions

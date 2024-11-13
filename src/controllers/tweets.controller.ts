@@ -1,9 +1,9 @@
 import { ParamsDictionary } from 'express-serve-static-core';
 import { NextFunction, Request, Response } from 'express';
-import { GetTweetChildrenQuery, TweetParams, TweetReqBody } from '~/models/requests/tweets.request';
+import { GetTweetChildrenQuery, TweetParams, TweetReqBody } from '~/models/requests/tweet.requests';
 import tweetsService from '~/services/tweets.services';
 import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
-import { TokenPayload } from '~/models/requests/users.requests';
+import { TokenPayload } from '~/models/requests/user.requests';
 import { TWEETS_MESSAGES } from '~/constants/message';
 import { ObjectId } from 'mongodb';
 import { TweetType } from '~/constants/enum';

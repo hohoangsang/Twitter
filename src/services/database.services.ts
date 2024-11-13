@@ -40,7 +40,7 @@ class DatabaseService {
     return this.db.collection(process.env.DB_REFRESH_TOKENS_COLLECTION as string);
   }
 
-  get follower(): Collection<Follower> {
+  get followers(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string);
   }
 
@@ -97,11 +97,13 @@ class DatabaseService {
   }
 
   async indexFollowers() {
-    const existedIndexFollowers = await this.follower.indexExists(['user_id_1_followed_user_id_1']);
+    const existedIndexFollowers = await this.followers.indexExists([
+      'user_id_1_followed_user_id_1'
+    ]);
 
     if (existedIndexFollowers) return;
 
-    await this.follower.createIndex({ user_id: 1, followed_user_id: 1 });
+    await this.followers.createIndex({ user_id: 1, followed_user_id: 1 });
   }
 
   async indexVideoStatus() {

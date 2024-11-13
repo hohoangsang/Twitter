@@ -4,7 +4,7 @@ import { Media } from '../Other';
 
 export interface TweetConstructor {
   _id?: ObjectId;
-  user_id: string;
+  user_id: ObjectId;
   content?: string;
   audience: TweetAudience;
   medias?: Media[];
@@ -51,7 +51,7 @@ export default class Tweet {
     const date = new Date();
 
     this._id = _id;
-    this.user_id = new ObjectId(user_id);
+    this.user_id = user_id;
     this.type = type;
     this.audience = audience;
     this.content = content ? content.toString() : '';

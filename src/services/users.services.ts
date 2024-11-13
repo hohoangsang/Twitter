@@ -7,7 +7,7 @@ import { TokenType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { ErrorWithStatus } from '~/models/errors';
-import { RegisterReqBody, updateMeReqBody } from '~/models/requests/users.requests';
+import { RegisterReqBody, updateMeReqBody } from '~/models/requests/user.requests';
 import Follower from '~/models/schemas/follower.schema';
 import RefreshToken from '~/models/schemas/refreshToken.schema';
 import User from '~/models/schemas/user.schema';
@@ -542,7 +542,7 @@ class UsersService {
   }
 
   async followUser({ followed_user_id, user_id }: { user_id: string; followed_user_id: string }) {
-    const follow = await databaseService.follower.findOne({
+    const follow = await databaseService.followers.findOne({
       followed_user_id: new ObjectId(followed_user_id),
       user_id: new ObjectId(user_id)
     });
@@ -554,7 +554,7 @@ class UsersService {
       });
     }
 
-    await databaseService.follower.insertOne(
+    await databaseService.followers.insertOne(
       new Follower({
         user_id: new ObjectId(user_id),
         followed_user_id: new ObjectId(followed_user_id)
@@ -567,7 +567,7 @@ class UsersService {
   }
 
   async unfollowUser({ user_id, followed_user_id }: { user_id: string; followed_user_id: string }) {
-    const follow = await databaseService.follower.findOne({
+    const follow = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
     });
@@ -579,7 +579,7 @@ class UsersService {
       });
     }
 
-    await databaseService.follower.deleteOne({
+    await databaseService.followers.deleteOne({
       user_id: new ObjectId(user_id),
       followed_user_id: new ObjectId(followed_user_id)
     });
@@ -608,7 +608,7 @@ class UsersService {
   }
 
   async getFollowing({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
-    const result = await databaseService.follower
+    const result = await databaseService.followers
       .aggregate<Follower>([
         {
           $match: {
@@ -676,7 +676,7 @@ class UsersService {
       ])
       .toArray();
 
-    const total = await databaseService.follower.countDocuments({
+    const total = await databaseService.followers.countDocuments({
       user_id: new ObjectId(user_id)
     });
 
@@ -687,7 +687,7 @@ class UsersService {
   }
 
   async getFollower({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
-    const result = await databaseService.follower
+    const result = await databaseService.followers
       .aggregate<Follower>([
         {
           $match: {
@@ -755,7 +755,7 @@ class UsersService {
       ])
       .toArray();
 
-    const total = await databaseService.follower.countDocuments({
+    const total = await databaseService.followers.countDocuments({
       followed_user_id: new ObjectId(user_id)
     });
 

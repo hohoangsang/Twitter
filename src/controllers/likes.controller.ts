@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LIKE_MESSAGES } from '~/constants/message';
-import { LikeReqBody } from '~/models/requests/likes.request';
-import { TokenPayload } from '~/models/requests/users.requests';
+import { LikeReqBody } from '~/models/requests/like.requests';
+import { TokenPayload } from '~/models/requests/user.requests';
 import likeService from '~/services/likes.services';
 
 export const likeTweetController = async (

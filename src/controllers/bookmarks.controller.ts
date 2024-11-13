@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BOOKMARK_MESSAGES } from '~/constants/message';
-import { BookmarkReqBody } from '~/models/requests/bookmarks.request';
-import { TokenPayload } from '~/models/requests/users.requests';
+import { BookmarkReqBody } from '~/models/requests/bookmark.requests';
+import { TokenPayload } from '~/models/requests/user.requests';
 import bookmarksService from '~/services/bookmarks.services';
 
 export const createBookmarkTweetController = async (

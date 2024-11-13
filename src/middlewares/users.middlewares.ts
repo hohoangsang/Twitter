@@ -9,7 +9,7 @@ import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
 import { REGEX_USERNAME } from '~/constants/regex';
 import { ErrorWithStatus } from '~/models/errors';
-import { TokenPayload } from '~/models/requests/users.requests';
+import { TokenPayload } from '~/models/requests/user.requests';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
 import { hashPassword } from '~/utils/crypto';

@@ -11,6 +11,13 @@ import tweetRouter from '~/routes/tweets.routes';
 import bookmarksRouter from '~/routes/bookmarks.routes';
 import likesRouter from './routes/likes.routes';
 
+// /**
+//  * Import script để tạo tự động nhiều data vào trong MongoDB,
+//  * nhưng khi thì cần mới nên dùng, còn không cần thì comment đoạn import này
+//  * vì mỗi khi server chạy lại thì đoạn script này sẽ chạy lại rất mất tgian
+//  */
+// import '~/utils/fake';
+
 config();
 
 const app = express();

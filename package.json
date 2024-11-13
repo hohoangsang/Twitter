@@ -36,6 +36,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.2.0",
     "@types/yargs": "^17.0.33",
     "axios": "^1.7.2",
     "cors": "^2.8.5",

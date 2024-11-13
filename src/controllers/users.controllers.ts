@@ -20,7 +20,7 @@ import {
   TokenPayload,
   UnFollowUserReqParams,
   VerifyForgotPasswordTokenReqBody
-} from '~/models/requests/users.requests';
+} from '~/models/requests/user.requests';
 import User from '~/models/schemas/user.schema';
 import databaseService from '~/services/database.services';
 import usersService from '~/services/users.services';
