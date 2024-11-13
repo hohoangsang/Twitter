@@ -63,7 +63,8 @@ export const USERS_MESSAGES = {
   GMAIL_NOT_VERIFIED: 'Gmail not verified',
   UPLOAD_SUCCESS: 'Upload success',
   REFRESH_TOKEN_SUCCESS: 'Refresh token success',
-  USER_UNDEFINED: 'User is undefinded'
+  USER_UNDEFINED: 'User is undefinded',
+  USER_ID_MUST_BE_A_VALID_ID: 'User id must be a valid id'
 } as const;
 
 export const MEDIA_MESSAGES = {

@@ -8,6 +8,7 @@ import { ErrorWithStatus } from '~/models/errors';
 import {
   ChangePasswordReqBody,
   EmailVerifyReqBody,
+  FollowQuery,
   FollowUserReqBody,
   ForgotPasswordReqBody,
   GetProfileReqParams,
@@ -233,4 +234,12 @@ export const changePasswordController = async (
   const result = await usersService.changePassword({ new_password, user_id });
 
   return res.json(result);
+};
+
+export const getFollowingController = async (
+  req: Request<ParamsDictionary, any, any, FollowQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.json('OK');
 };

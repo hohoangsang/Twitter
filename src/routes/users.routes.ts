@@ -4,6 +4,7 @@ import {
   emailVerifyController,
   followUserController,
   forgotPasswordController,
+  getFollowingController,
   getMeController,
   getProfileController,
   loginController,
@@ -24,6 +25,7 @@ import {
   emailTokenVerifyValidator,
   emailValidator,
   followUserValidator,
+  followValidator,
   forgotPasswordTokenValidator,
   loginValidator,
   refreshTokenValidator,
@@ -254,6 +256,18 @@ userRouter.delete(
   unfollowUserValidator,
   wrapRequestHandler(unfollowUserController)
 );
+
+/**
+ * Description: Get list following
+ * Methods: GET
+ * Path: /following
+ * query: {
+ *    page: number,
+ *    limit: number,
+ *    user_id: string
+ * }
+ */
+userRouter.get('/follow/following', followValidator, wrapRequestHandler(getFollowingController));
 
 /**
  * Description: Change password

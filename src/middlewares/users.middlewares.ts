@@ -772,3 +772,52 @@ export const isUserLoggedInValidator =
 
     next();
   };
+
+export const followValidator = validate(
+  checkSchema(
+    {
+      page: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            if (value < 1) {
+              throw new Error('page >= 1');
+            }
+
+            return true;
+          }
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: (value) => {
+            if (value < 1 || value > 100) {
+              throw new Error('1 <= limit <= 100');
+            }
+
+            return true;
+          }
+        }
+      },
+      user_id: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.USER_ID_MUST_BE_A_VALID_ID
+        },
+        custom: {
+          options: (value) => {
+            if (!ObjectId.isValid(value) || typeof value !== 'string') {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.BAD_REQUEST,
+                message: USERS_MESSAGES.USER_ID_MUST_BE_A_VALID_ID
+              });
+            }
+
+            return true;
+          }
+        }
+      }
+    },
+    ['query']
+  )
+);

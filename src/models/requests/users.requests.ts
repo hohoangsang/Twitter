@@ -1,4 +1,4 @@
-import { ParamsDictionary } from 'express-serve-static-core';
+import { ParamsDictionary, Query } from 'express-serve-static-core';
 import { JwtPayload } from 'jsonwebtoken';
 import { TokenType } from '~/constants/enum';
 
@@ -75,3 +75,9 @@ export type ChangePasswordReqBody = {
 export type RefreshTokenReqBody = {
   refresh_token: string;
 };
+
+export interface FollowQuery extends Query {
+  page: string;
+  limit: string;
+  user_id: string;
+}
