@@ -67,7 +67,7 @@ export const getTweetChildrensController = async (
   return res.send({
     message: TWEETS_MESSAGES.GET_TWEET_CHILDREN_SUCCESSFULLY,
     result: {
-      childrens,
+      data: childrens,
       pagination: {
         limit: Number(limit),
         page: Number(page),

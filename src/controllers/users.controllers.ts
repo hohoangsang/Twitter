@@ -241,5 +241,47 @@ export const getFollowingController = async (
   res: Response,
   next: NextFunction
 ) => {
-  return res.json('OK');
+  const { limit, page, user_id } = req.query;
+  const { result, total } = await usersService.getFollowing({
+    limit: Number(limit),
+    page: Number(page),
+    user_id
+  });
+
+  return res.send({
+    message: USERS_MESSAGES.GET_FOLLOWING_SUCCESS,
+    result: {
+      data: result,
+      pagination: {
+        limit: Number(limit),
+        page: Number(page),
+        total
+      }
+    }
+  });
+};
+
+export const getFollowerController = async (
+  req: Request<ParamsDictionary, any, any, FollowQuery>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { limit, page, user_id } = req.query;
+  const { result, total } = await usersService.getFollower({
+    limit: Number(limit),
+    page: Number(page),
+    user_id
+  });
+
+  return res.send({
+    message: USERS_MESSAGES.GET_FOLLOWER_SUCCESS,
+    result: {
+      data: result,
+      pagination: {
+        limit: Number(limit),
+        page: Number(page),
+        total
+      }
+    }
+  });
 };

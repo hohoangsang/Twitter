@@ -606,6 +606,164 @@ class UsersService {
       message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS
     };
   }
+
+  async getFollowing({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
+    const result = await databaseService.follower
+      .aggregate<Follower>([
+        {
+          $match: {
+            user_id: new ObjectId(user_id)
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'followed_user_id',
+            foreignField: '_id',
+            as: 'followed_user'
+          }
+        },
+        {
+          $addFields: {
+            user: {
+              $map: {
+                input: '$user',
+                in: {
+                  _id: '$$this._id',
+                  name: '$$this.name',
+                  username: '$$this.username',
+                  avatar: '$$this.avatar'
+                }
+              }
+            },
+            followed_user: {
+              $map: {
+                input: '$followed_user',
+                in: {
+                  _id: '$$this._id',
+                  name: '$$this.name',
+                  username: '$$this.username',
+                  avatar: '$$this.avatar'
+                }
+              }
+            }
+          }
+        },
+        {
+          $addFields: {
+            user: {
+              $arrayElemAt: ['$user', 0]
+            },
+            followed_user: {
+              $arrayElemAt: ['$followed_user', 0]
+            }
+          }
+        },
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray();
+
+    const total = await databaseService.follower.countDocuments({
+      user_id: new ObjectId(user_id)
+    });
+
+    return {
+      result,
+      total
+    };
+  }
+
+  async getFollower({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
+    const result = await databaseService.follower
+      .aggregate<Follower>([
+        {
+          $match: {
+            followed_user_id: new ObjectId(user_id)
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'followed_user_id',
+            foreignField: '_id',
+            as: 'followed_user'
+          }
+        },
+        {
+          $addFields: {
+            user: {
+              $map: {
+                input: '$user',
+                in: {
+                  _id: '$$this._id',
+                  name: '$$this.name',
+                  username: '$$this.username',
+                  avatar: '$$this.avatar'
+                }
+              }
+            },
+            followed_user: {
+              $map: {
+                input: '$followed_user',
+                in: {
+                  _id: '$$this._id',
+                  name: '$$this.name',
+                  username: '$$this.username',
+                  avatar: '$$this.avatar'
+                }
+              }
+            }
+          }
+        },
+        {
+          $addFields: {
+            user: {
+              $arrayElemAt: ['$user', 0]
+            },
+            followed_user: {
+              $arrayElemAt: ['$followed_user', 0]
+            }
+          }
+        },
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray();
+
+    const total = await databaseService.follower.countDocuments({
+      followed_user_id: new ObjectId(user_id)
+    });
+
+    return {
+      result,
+      total
+    };
+  }
 }
 
 const usersService = new UsersService();

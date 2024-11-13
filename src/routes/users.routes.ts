@@ -4,6 +4,7 @@ import {
   emailVerifyController,
   followUserController,
   forgotPasswordController,
+  getFollowerController,
   getFollowingController,
   getMeController,
   getProfileController,
@@ -260,7 +261,7 @@ userRouter.delete(
 /**
  * Description: Get list following
  * Methods: GET
- * Path: /following
+ * Path: /follow/following
  * query: {
  *    page: number,
  *    limit: number,
@@ -268,6 +269,18 @@ userRouter.delete(
  * }
  */
 userRouter.get('/follow/following', followValidator, wrapRequestHandler(getFollowingController));
+
+/**
+ * Description: Get list follower
+ * Methods: GET
+ * Path: /follow/follower
+ * query: {
+ *    page: number,
+ *    limit: number,
+ *    user_id: string
+ * }
+ */
+userRouter.get('/follow/follower', followValidator, wrapRequestHandler(getFollowerController));
 
 /**
  * Description: Change password

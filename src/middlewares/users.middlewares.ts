@@ -805,11 +805,20 @@ export const followValidator = validate(
           errorMessage: USERS_MESSAGES.USER_ID_MUST_BE_A_VALID_ID
         },
         custom: {
-          options: (value) => {
+          options: async (value) => {
             if (!ObjectId.isValid(value) || typeof value !== 'string') {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.BAD_REQUEST,
                 message: USERS_MESSAGES.USER_ID_MUST_BE_A_VALID_ID
+              });
+            }
+
+            const user = await databaseService.users.findOne({ _id: new ObjectId(value) });
+
+            if (!user || user.verify === UserVerifyStatus.Banned) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.NOT_FOUND,
+                message: USERS_MESSAGES.USER_NOT_FOUND
               });
             }
 
