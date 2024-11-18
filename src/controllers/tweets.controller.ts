@@ -1,6 +1,11 @@
 import { ParamsDictionary } from 'express-serve-static-core';
 import { NextFunction, Request, Response } from 'express';
-import { GetTweetChildrenQuery, TweetParams, TweetReqBody } from '~/models/requests/tweet.requests';
+import {
+  GetTweetChildrenQuery,
+  Pagination,
+  TweetParams,
+  TweetReqBody
+} from '~/models/requests/tweet.requests';
 import tweetsService from '~/services/tweets.services';
 import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
 import { TokenPayload } from '~/models/requests/user.requests';
@@ -73,6 +78,27 @@ export const getTweetChildrensController = async (
         page: Number(page),
         total
       }
+    }
+  });
+};
+
+export const getNewFeedsController = async (
+  req: Request<ParamsDictionary, any, any, Pagination>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { limit, page } = req.query;
+  const { user_id } = req.decoded_authorization as TokenPayload;
+  const result = await tweetsService.getNewFeeds({
+    limit: Number(limit),
+    page: Number(page),
+    user_id
+  });
+
+  return res.send({
+    message: TWEETS_MESSAGES.GET_TWEET_SUCCESSFULLY,
+    result: {
+      data: result
     }
   });
 };

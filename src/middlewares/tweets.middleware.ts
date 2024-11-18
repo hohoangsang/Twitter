@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { checkSchema } from 'express-validator';
+import { checkSchema, ParamSchema } from 'express-validator';
 import { isEmpty } from 'lodash';
 import { ObjectId } from 'mongodb';
 import { TweetAudience, TweetType, UserVerifyStatus } from '~/constants/enum';
@@ -11,6 +11,36 @@ import Tweet from '~/models/schemas/tweet.schema';
 import databaseService from '~/services/database.services';
 import { wrapRequestHandler } from '~/utils/handlers';
 import { isMediaType, validate } from '~/utils/validation';
+
+const paginationSchema: Record<string, ParamSchema> = {
+  page: {
+    isNumeric: true,
+    custom: {
+      options: (value) => {
+        const num = Number(value);
+
+        if (num < 1) {
+          throw Error('page >= 1');
+        }
+
+        return true;
+      }
+    }
+  },
+  limit: {
+    isNumeric: true,
+    custom: {
+      options: (value) => {
+        const num = Number(value);
+        if (num > 100 || num < 1) {
+          throw new Error('1 <= limit <= 100');
+        }
+
+        return true;
+      }
+    }
+  }
+};
 
 export const createTweetValidator = validate(
   checkSchema(
@@ -367,34 +397,14 @@ export const getTweetChildrensValidator = validate(
           }
         }
       },
-      page: {
-        isNumeric: true,
-        custom: {
-          options: (value) => {
-            const num = Number(value);
-
-            if (num < 1) {
-              throw Error('page >= 1');
-            }
-
-            return true;
-          }
-        }
-      },
-      limit: {
-        isNumeric: true,
-        custom: {
-          options: (value) => {
-            const num = Number(value);
-            if (num > 100 || num < 1) {
-              throw new Error('1 <= limit <= 100');
-            }
-
-            return true;
-          }
-        }
-      }
+      ...paginationSchema
     },
     ['query']
   )
+);
+
+export const getNewFeedValidator = validate(
+  checkSchema({
+    ...paginationSchema
+  })
 );

@@ -1,12 +1,14 @@
 import express from 'express';
 import {
   createTweetController,
+  getNewFeedsController,
   getTweetChildrensController,
   getTweetController
 } from '~/controllers/tweets.controller';
 import {
   audienceValidator,
   createTweetValidator,
+  getNewFeedValidator,
   getTweetChildrensValidator,
   tweetIdValidator
 } from '~/middlewares/tweets.middleware';
@@ -80,4 +82,20 @@ tweetRouter.get(
   wrapRequestHandler(getTweetChildrensController)
 );
 
+/**
+ * Descriptions: get tweet new feed
+ * Methods: get
+ * Path: /newfeed
+ * Query: {
+ *  page: string,
+ *  limit: string
+ * }
+ */
+tweetRouter.get(
+  '/new-feeds/all',
+  accessTokenValidator,
+  verifiedUserValidator,
+  getNewFeedValidator,
+  wrapRequestHandler(getNewFeedsController)
+);
 export default tweetRouter;

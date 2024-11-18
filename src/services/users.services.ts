@@ -2,7 +2,7 @@ import { resendVerifyEmailController } from './../controllers/users.controllers'
 import axios from 'axios';
 import { config } from 'dotenv';
 import { ParamsDictionary } from 'express-serve-static-core';
-import { ObjectId } from 'mongodb';
+import { Document, ObjectId } from 'mongodb';
 import { TokenType, UserVerifyStatus } from '~/constants/enum';
 import { HTTP_STATUS } from '~/constants/httpStatus';
 import { USERS_MESSAGES } from '~/constants/message';
@@ -607,73 +607,80 @@ class UsersService {
     };
   }
 
-  async getFollowing({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
-    const result = await databaseService.followers
-      .aggregate<Follower>([
-        {
-          $match: {
-            user_id: new ObjectId(user_id)
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: '_id',
-            as: 'user'
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'followed_user_id',
-            foreignField: '_id',
-            as: 'followed_user'
-          }
-        },
-        {
-          $addFields: {
-            user: {
-              $map: {
-                input: '$user',
-                in: {
-                  _id: '$$this._id',
-                  name: '$$this.name',
-                  username: '$$this.username',
-                  avatar: '$$this.avatar'
-                }
+  async getFollowing({ limit, page, user_id }: { page?: number; limit?: number; user_id: string }) {
+    const aggregateGetFollowing: Document[] = [
+      {
+        $match: {
+          user_id: new ObjectId(user_id)
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'followed_user_id',
+          foreignField: '_id',
+          as: 'followed_user'
+        }
+      },
+      {
+        $addFields: {
+          user: {
+            $map: {
+              input: '$user',
+              in: {
+                _id: '$$this._id',
+                name: '$$this.name',
+                username: '$$this.username',
+                avatar: '$$this.avatar'
               }
-            },
-            followed_user: {
-              $map: {
-                input: '$followed_user',
-                in: {
-                  _id: '$$this._id',
-                  name: '$$this.name',
-                  username: '$$this.username',
-                  avatar: '$$this.avatar'
-                }
+            }
+          },
+          followed_user: {
+            $map: {
+              input: '$followed_user',
+              in: {
+                _id: '$$this._id',
+                name: '$$this.name',
+                username: '$$this.username',
+                avatar: '$$this.avatar'
               }
             }
           }
-        },
-        {
-          $addFields: {
-            user: {
-              $arrayElemAt: ['$user', 0]
-            },
-            followed_user: {
-              $arrayElemAt: ['$followed_user', 0]
-            }
+        }
+      },
+      {
+        $addFields: {
+          user: {
+            $arrayElemAt: ['$user', 0]
+          },
+          followed_user: {
+            $arrayElemAt: ['$followed_user', 0]
           }
-        },
+        }
+      }
+    ];
+
+    if (page && limit) {
+      aggregateGetFollowing.push(
         {
           $skip: limit * (page - 1)
         },
         {
           $limit: limit
         }
-      ])
+      );
+    }
+
+    const result = await databaseService.followers
+      .aggregate<Follower>(aggregateGetFollowing)
       .toArray();
 
     const total = await databaseService.followers.countDocuments({
@@ -686,73 +693,80 @@ class UsersService {
     };
   }
 
-  async getFollower({ limit, page, user_id }: { page: number; limit: number; user_id: string }) {
-    const result = await databaseService.followers
-      .aggregate<Follower>([
-        {
-          $match: {
-            followed_user_id: new ObjectId(user_id)
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: '_id',
-            as: 'user'
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'followed_user_id',
-            foreignField: '_id',
-            as: 'followed_user'
-          }
-        },
-        {
-          $addFields: {
-            user: {
-              $map: {
-                input: '$user',
-                in: {
-                  _id: '$$this._id',
-                  name: '$$this.name',
-                  username: '$$this.username',
-                  avatar: '$$this.avatar'
-                }
+  async getFollower({ limit, page, user_id }: { page?: number; limit?: number; user_id: string }) {
+    const aggregateGetFollower: Document[] = [
+      {
+        $match: {
+          followed_user_id: new ObjectId(user_id)
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'followed_user_id',
+          foreignField: '_id',
+          as: 'followed_user'
+        }
+      },
+      {
+        $addFields: {
+          user: {
+            $map: {
+              input: '$user',
+              in: {
+                _id: '$$this._id',
+                name: '$$this.name',
+                username: '$$this.username',
+                avatar: '$$this.avatar'
               }
-            },
-            followed_user: {
-              $map: {
-                input: '$followed_user',
-                in: {
-                  _id: '$$this._id',
-                  name: '$$this.name',
-                  username: '$$this.username',
-                  avatar: '$$this.avatar'
-                }
+            }
+          },
+          followed_user: {
+            $map: {
+              input: '$followed_user',
+              in: {
+                _id: '$$this._id',
+                name: '$$this.name',
+                username: '$$this.username',
+                avatar: '$$this.avatar'
               }
             }
           }
-        },
-        {
-          $addFields: {
-            user: {
-              $arrayElemAt: ['$user', 0]
-            },
-            followed_user: {
-              $arrayElemAt: ['$followed_user', 0]
-            }
+        }
+      },
+      {
+        $addFields: {
+          user: {
+            $arrayElemAt: ['$user', 0]
+          },
+          followed_user: {
+            $arrayElemAt: ['$followed_user', 0]
           }
-        },
+        }
+      }
+    ];
+
+    if (page && limit) {
+      aggregateGetFollower.push(
         {
           $skip: limit * (page - 1)
         },
         {
           $limit: limit
         }
-      ])
+      );
+    }
+
+    const result = await databaseService.followers
+      .aggregate<Follower>(aggregateGetFollower)
       .toArray();
 
     const total = await databaseService.followers.countDocuments({

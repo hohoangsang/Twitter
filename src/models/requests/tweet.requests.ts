@@ -14,10 +14,12 @@ export interface TweetReqBody {
   type: TweetType;
 }
 
-export interface GetTweetChildrenQuery extends Query {
-  type: TweetType;
+export interface Pagination {
   page: string;
   limit: string;
+}
+export interface GetTweetChildrenQuery extends Query, Pagination {
+  type: TweetType;
 }
 
 export interface TweetParams extends ParamsDictionary {
