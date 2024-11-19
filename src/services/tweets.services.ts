@@ -97,8 +97,8 @@ class TweetsService {
     user_id
   }: {
     type: TweetType;
-    page?: number;
-    limit?: number;
+    page: number;
+    limit: number;
     tweet_id: string;
     user_id?: string;
   }) {
@@ -108,6 +108,12 @@ class TweetsService {
           parent_id: new ObjectId(tweet_id),
           type
         }
+      },
+      {
+        $skip: limit * (page - 1)
+      },
+      {
+        $limit: limit
       },
       {
         $lookup: {
@@ -210,17 +216,6 @@ class TweetsService {
         }
       }
     ];
-
-    if (page && limit) {
-      aggregateArray.push(
-        {
-          $skip: limit * (page - 1)
-        },
-        {
-          $limit: limit
-        }
-      );
-    }
 
     const result = await databaseService.tweets.aggregate<Tweet>(aggregateArray).toArray();
 
@@ -331,6 +326,11 @@ class TweetsService {
                 ]
               }
             ]
+          }
+        },
+        {
+          $sort: {
+            created_at: -1
           }
         },
         {
@@ -447,11 +447,6 @@ class TweetsService {
               forgot_password_token: 0,
               email_verify_token: 0
             }
-          }
-        },
-        {
-          $sort: {
-            created_at: -1
           }
         }
       ])
