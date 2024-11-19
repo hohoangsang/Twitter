@@ -1,17 +1,15 @@
-import { ParamsDictionary } from 'express-serve-static-core';
 import { NextFunction, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { TweetType } from '~/constants/enum';
+import { TWEETS_MESSAGES } from '~/constants/message';
 import {
   GetTweetChildrenQuery,
   Pagination,
   TweetParams,
   TweetReqBody
 } from '~/models/requests/tweet.requests';
-import tweetsService from '~/services/tweets.services';
-import Tweet, { TweetConstructor } from '~/models/schemas/tweet.schema';
 import { TokenPayload } from '~/models/requests/user.requests';
-import { TWEETS_MESSAGES } from '~/constants/message';
-import { ObjectId } from 'mongodb';
-import { TweetType } from '~/constants/enum';
+import tweetsService from '~/services/tweets.services';
 
 export const createTweetController = async (
   request: Request<ParamsDictionary, any, TweetReqBody>,
@@ -89,7 +87,7 @@ export const getNewFeedsController = async (
 ) => {
   const { limit, page } = req.query;
   const { user_id } = req.decoded_authorization as TokenPayload;
-  const result = await tweetsService.getNewFeeds({
+  const { tweets, total } = await tweetsService.getNewFeeds({
     limit: Number(limit),
     page: Number(page),
     user_id
@@ -98,7 +96,12 @@ export const getNewFeedsController = async (
   return res.send({
     message: TWEETS_MESSAGES.GET_TWEET_SUCCESSFULLY,
     result: {
-      data: result
+      data: tweets,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total
+      }
     }
   });
 };

@@ -89,6 +89,30 @@ class TweetsService {
     }>;
   }
 
+  async increateViewForManyTweet({
+    tweetIds,
+    updated_at
+  }: {
+    tweetIds: ObjectId[];
+    updated_at: Date;
+  }) {
+    await databaseService.tweets.updateMany(
+      {
+        _id: {
+          $in: tweetIds
+        }
+      },
+      {
+        $inc: {
+          user_views: 1
+        },
+        $set: {
+          updated_at
+        }
+      }
+    );
+  }
+
   async getTweetChildrens({
     type,
     limit = 0,
@@ -225,19 +249,7 @@ class TweetsService {
 
     const [, total] = await Promise.all([
       //Query tăng view cho nhiều tweet
-      databaseService.tweets.updateMany(
-        {
-          _id: {
-            $in: tweetIds
-          }
-        },
-        {
-          $inc: inc,
-          $set: {
-            updated_at: date
-          }
-        }
-      ),
+      this.increateViewForManyTweet({ tweetIds, updated_at: date }),
       databaseService.tweets.countDocuments({
         parent_id: new ObjectId(tweet_id),
         type
@@ -259,200 +271,287 @@ class TweetsService {
     const followedUser = (await usersService.getFollowing({ user_id })).result;
     const followedUserObjIDs: ObjectId[] = followedUser.map((user) => user.followed_user_id);
 
-    const result = await databaseService.tweets
-      .aggregate<Tweet>([
-        {
-          $match:
-            /**
-             * Câu query get new feed tweet
-             * User đăng nhập vào sẽ thấy được những tweet như sau:
-             * - Những tweet user đó làm tác giả, những tweet của những người
-             * mà user đó follow
-             * - Đối với những tweet thuộc những người mình follow thì user sẽ thấy những tweet
-             * thuộc 2 trường hợp:
-             * 	+ tweet của người đó là public
-             *		+ tweet đó thuộc twitter_circle của tác giả và trong twitter_circle đó có
-             *			id của bạn.
-             * - Các tweet được sort theo thời gian tạo mới nhất trước khi được phân trang
-             */
+    const [tweets, tweetsCount] = await Promise.all([
+      databaseService.tweets
+        .aggregate<Tweet>([
+          {
+            $match:
+              /**
+               * Câu query get new feed tweet
+               * User đăng nhập vào sẽ thấy được những tweet như sau:
+               * - Những tweet user đó làm tác giả, những tweet của những người
+               * mà user đó follow
+               * - Đối với những tweet thuộc những người mình follow thì user sẽ thấy những tweet
+               * thuộc 2 trường hợp:
+               * 	+ tweet của người đó là public
+               *		+ tweet đó thuộc twitter_circle của tác giả và trong twitter_circle đó có
+               *			id của bạn.
+               * - Các tweet được sort theo thời gian tạo mới nhất trước khi được phân trang
+               */
 
-            {
-              $or: [
-                // User_id của account đăng nhập
-                {
-                  user_id: new ObjectId(user_id)
-                },
-                //User_id của những người mình follow
-                {
-                  user_id: {
-                    $in: followedUserObjIDs
-                  }
-                }
-              ]
-            }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: '_id',
-            as: 'user'
-          }
-        },
-        {
-          $unwind: {
-            path: '$user'
-          }
-        },
-        {
-          $match: {
-            $or: [
               {
-                audience: 'EVERYONE'
-              },
-              {
-                user_id: new ObjectId(user_id)
-              },
-              {
-                $and: [
+                $or: [
+                  // User_id của account đăng nhập
                   {
-                    audience: 'TWITTERCIRCLE'
+                    user_id: new ObjectId(user_id)
                   },
+                  //User_id của những người mình follow
                   {
-                    'user.twitter_circle': {
-                      $in: [new ObjectId(user_id)]
+                    user_id: {
+                      $in: followedUserObjIDs
                     }
                   }
                 ]
               }
-            ]
-          }
-        },
-        {
-          $sort: {
-            created_at: -1
-          }
-        },
-        {
-          $skip: (page - 1) * limit
-        },
-        {
-          $limit: limit
-        },
-        {
-          $lookup: {
-            from: 'hashtags',
-            localField: 'hashtags',
-            foreignField: '_id',
-            as: 'hashtags'
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'mentions',
-            foreignField: '_id',
-            as: 'mentions'
-          }
-        },
-        {
-          $lookup: {
-            from: 'bookmarks',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'bookmarks'
-          }
-        },
-        {
-          $lookup: {
-            from: 'likes',
-            localField: '_id',
-            foreignField: 'tweet_id',
-            as: 'likes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'tweets',
-            localField: '_id',
-            foreignField: 'parent_id',
-            as: 'tweet_children'
-          }
-        },
-        {
-          $addFields: {
-            mentions: {
-              $map: {
-                input: '$mentions',
-                as: 'item',
-                in: {
-                  _id: '$$item._id',
-                  name: '$$item.name',
-                  username: '$$item.username',
-                  avatar: '$$item.avatar'
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $unwind: {
+              path: '$user'
+            }
+          },
+          {
+            $match: {
+              $or: [
+                {
+                  audience: 'EVERYONE'
+                },
+                {
+                  user_id: new ObjectId(user_id)
+                },
+                {
+                  $and: [
+                    {
+                      audience: 'TWITTERCIRCLE'
+                    },
+                    {
+                      'user.twitter_circle': {
+                        $in: [new ObjectId(user_id)]
+                      }
+                    }
+                  ]
                 }
-              }
-            },
-            bookmarks: {
-              $size: '$bookmarks'
-            },
-            likes: {
-              $size: '$likes'
-            },
-            retweet_count: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
+              ]
+            }
+          },
+          {
+            $sort: {
+              created_at: -1
+            }
+          },
+          {
+            $skip: (page - 1) * limit
+          },
+          {
+            $limit: limit
+          },
+          {
+            $lookup: {
+              from: 'hashtags',
+              localField: 'hashtags',
+              foreignField: '_id',
+              as: 'hashtags'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'mentions',
+              foreignField: '_id',
+              as: 'mentions'
+            }
+          },
+          {
+            $lookup: {
+              from: 'bookmarks',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'bookmarks'
+            }
+          },
+          {
+            $lookup: {
+              from: 'likes',
+              localField: '_id',
+              foreignField: 'tweet_id',
+              as: 'likes'
+            }
+          },
+          {
+            $lookup: {
+              from: 'tweets',
+              localField: '_id',
+              foreignField: 'parent_id',
+              as: 'tweet_children'
+            }
+          },
+          {
+            $addFields: {
+              mentions: {
+                $map: {
+                  input: '$mentions',
                   as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', TweetType.Retweet]
+                  in: {
+                    _id: '$$item._id',
+                    name: '$$item.name',
+                    username: '$$item.username',
+                    avatar: '$$item.avatar'
                   }
                 }
-              }
-            },
-            comment_count: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', TweetType.Comment]
+              },
+              bookmarks: {
+                $size: '$bookmarks'
+              },
+              likes: {
+                $size: '$likes'
+              },
+              retweet_count: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', TweetType.Retweet]
+                    }
                   }
                 }
-              }
-            },
-            quote_count: {
-              $size: {
-                $filter: {
-                  input: '$tweet_children',
-                  as: 'item',
-                  cond: {
-                    $eq: ['$$item.type', TweetType.QuoteTweet]
+              },
+              comment_count: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', TweetType.Comment]
+                    }
+                  }
+                }
+              },
+              quote_count: {
+                $size: {
+                  $filter: {
+                    input: '$tweet_children',
+                    as: 'item',
+                    cond: {
+                      $eq: ['$$item.type', TweetType.QuoteTweet]
+                    }
                   }
                 }
               }
             }
-          }
-        },
-        {
-          $project: {
-            tweet_children: 0,
-            user: {
-              password: 0,
-              date_of_birth: 0,
-              verify: 0,
-              created_at: 0,
-              updated_at: 0,
-              twitter_circle: 0,
-              forgot_password_token: 0,
-              email_verify_token: 0
+          },
+          {
+            $project: {
+              tweet_children: 0,
+              user: {
+                password: 0,
+                date_of_birth: 0,
+                verify: 0,
+                created_at: 0,
+                updated_at: 0,
+                twitter_circle: 0,
+                forgot_password_token: 0,
+                email_verify_token: 0
+              }
             }
           }
-        }
-      ])
-      .toArray();
+        ])
+        .toArray(),
+      databaseService.tweets
+        .aggregate<{ total: number }>([
+          {
+            $match:
+              /**
+               * Câu query get new feed tweet
+               * User đăng nhập vào sẽ thấy được những tweet như sau:
+               * - Những tweet user đó làm tác giả, những tweet của những người
+               * mà user đó follow
+               * - Đối với những tweet thuộc những người mình follow thì user sẽ thấy những tweet
+               * thuộc 2 trường hợp:
+               * 	+ tweet của người đó là public
+               *		+ tweet đó thuộc twitter_circle của tác giả và trong twitter_circle đó có
+               *			id của bạn.
+               * - Các tweet được sort theo thời gian tạo mới nhất trước khi được phân trang
+               */
+              {
+                $or: [
+                  // User_id của account đăng nhập
+                  {
+                    user_id: new ObjectId(user_id)
+                  },
+                  //User_id của những người mình follow
+                  {
+                    user_id: {
+                      $in: followedUserObjIDs
+                    }
+                  }
+                ]
+              }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $unwind: {
+              path: '$user'
+            }
+          },
+          {
+            $match: {
+              $or: [
+                {
+                  audience: 'EVERYONE'
+                },
+                {
+                  user_id: new ObjectId(user_id)
+                },
+                {
+                  $and: [
+                    {
+                      audience: 'TWITTERCIRCLE'
+                    },
+                    {
+                      'user.twitter_circle': {
+                        $in: [new ObjectId(user_id)]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            $count: 'total'
+          }
+        ])
+        .toArray()
+    ]);
 
-    return result;
+    const tweetIds = tweets.map((item) => item._id as ObjectId);
+    const date = new Date();
+
+    await this.increateViewForManyTweet({ tweetIds, updated_at: date });
+
+    return {
+      tweets: tweets.map((item) => ({
+        ...item,
+        user_views: (item.user_views += 1),
+        updated_at: date
+      })),
+      total: tweetsCount[0].total || 0
+    };
   }
 }
 
