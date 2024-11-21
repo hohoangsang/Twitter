@@ -10,6 +10,7 @@ import cors from 'cors';
 import tweetRouter from '~/routes/tweets.routes';
 import bookmarksRouter from '~/routes/bookmarks.routes';
 import likesRouter from './routes/likes.routes';
+import searchRouter from './routes/search.routes';
 
 // /**
 //  * Import script để tạo tự động nhiều data vào trong MongoDB,
@@ -47,6 +48,7 @@ app.use('/static', staticRoutes);
 app.use('/tweets', tweetRouter);
 app.use('/bookmarks', bookmarksRouter);
 app.use('/likes', likesRouter);
+app.use('/search', searchRouter);
 // app.use('/static/video-stream', express.static(UPLOAD_VIDEO_DIR));
 
 /**
