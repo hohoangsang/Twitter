@@ -8,8 +8,9 @@ const searchRouter = express.Router();
 /**
  * Descriptions: Search tweet
  * Methods: GET
- * Path: /
+ * Path: /tweets
  * Query: {
+ *  hashtag: string;
  *  content: string;
  *  page: string;
  *  limit: string;
@@ -17,7 +18,7 @@ const searchRouter = express.Router();
  */
 
 searchRouter.get(
-  '/',
+  '/tweets',
   accessTokenValidator,
   verifiedUserValidator,
   wrapRequestHandler(searchController)

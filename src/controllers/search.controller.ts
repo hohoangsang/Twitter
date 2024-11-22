@@ -1,20 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { TWEETS_MESSAGES } from '~/constants/message';
-import { SearchQuery } from '~/models/requests/search.requests';
+import { SearchTweetQuery } from '~/models/requests/search.requests';
 import { TokenPayload } from '~/models/requests/user.requests';
 import searchService from '~/services/search.services';
 
 export const searchController = async (
-  req: Request<ParamsDictionary, any, any, SearchQuery>,
+  req: Request<ParamsDictionary, any, any, SearchTweetQuery>,
   res: Response,
   next: NextFunction
 ) => {
-  const { content, limit, page } = req.query;
+  const { content, limit, page, hashtag } = req.query;
+
   const { user_id } = req.decoded_authorization as TokenPayload;
 
-  const { tweets, total } = await searchService.searchAdvance({
+  const { tweets, total } = await searchService.searchTweet({
     content,
+    hashtag,
     limit: Number(limit),
     page: Number(page),
     user_id

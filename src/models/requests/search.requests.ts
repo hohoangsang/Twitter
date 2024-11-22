@@ -1,5 +1,6 @@
 import { Pagination } from './tweet.requests';
 
-export interface SearchQuery extends Pagination {
+export interface SearchTweetQuery extends Pagination {
   content: string;
+  hashtag: string;
 }
