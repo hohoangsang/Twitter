@@ -31,6 +31,7 @@ databaseService.connect().then(() => {
   databaseService.indexHashtags();
   databaseService.indexBookmark();
   databaseService.indexLike();
+  databaseService.indexTweet();
 });
 
 app.use(express.json());

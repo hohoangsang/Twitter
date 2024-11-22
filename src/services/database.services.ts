@@ -115,11 +115,14 @@ class DatabaseService {
   }
 
   async indexHashtags() {
-    const existedIndexHashtag = await this.hashtags.indexExists(['name_1']);
+    const existedIndexHashtag = await this.hashtags.indexExists(['name_1', 'name_text']);
 
     if (existedIndexHashtag) return;
 
     await this.hashtags.createIndex({ name: 1 }, { unique: true });
+
+    //option: { default_language: 'none' } dùng để disable "stop word" trong text search
+    await this.hashtags.createIndex({ name: 'text' }, { default_language: 'none' });
   }
 
   async indexBookmark() {
@@ -136,6 +139,15 @@ class DatabaseService {
     if (existedIndexLike) return;
 
     await this.likes.createIndex({ tweet_id: 1, user_id: 1 });
+  }
+
+  async indexTweet() {
+    const existedIndexTweet = await this.tweets.indexExists(['content_text']);
+
+    if (existedIndexTweet) return;
+
+    //option: { default_language: 'none' } dùng để disable "stop word" trong text search
+    await this.tweets.createIndex({ content: 'text' }, { default_language: 'none' });
   }
 }
 
