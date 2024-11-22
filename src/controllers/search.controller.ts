@@ -13,7 +13,7 @@ export const searchController = async (
   const { content, limit, page } = req.query;
   const { user_id } = req.decoded_authorization as TokenPayload;
 
-  const { result, total } = await searchService.searchAdvance({
+  const { tweets, total } = await searchService.searchAdvance({
     content,
     limit: Number(limit),
     page: Number(page),
@@ -23,7 +23,7 @@ export const searchController = async (
   return res.send({
     message: TWEETS_MESSAGES.GET_TWEET_SUCCESSFULLY,
     result: {
-      data: result,
+      data: tweets,
       pagination: {
         page: Number(page),
         limit: Number(limit),

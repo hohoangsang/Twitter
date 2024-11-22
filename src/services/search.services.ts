@@ -3,6 +3,7 @@ import databaseService from './database.services';
 import Tweet from '~/models/schemas/tweet.schema';
 import { ObjectId } from 'mongodb';
 import { TweetType } from '~/constants/enum';
+import tweetsService from './tweets.services';
 
 config();
 
@@ -24,7 +25,7 @@ class SearchService {
           {
             $match: {
               $text: {
-                $search: 'Suppellex'
+                $search: content
               }
             }
           },
@@ -194,7 +195,7 @@ class SearchService {
           {
             $match: {
               $text: {
-                $search: 'Suppellex'
+                $search: content
               }
             }
           },
@@ -242,8 +243,16 @@ class SearchService {
         .toArray()
     ]);
 
+    const tweetIds = result.map((item) => item._id as ObjectId);
+    const date = new Date();
+
+    await tweetsService.increateViewForManyTweet({ tweetIds, updated_at: date });
+
     return {
-      result,
+      tweets: result.map((item) => ({
+        ...item,
+        user_views: (item.user_views += 1)
+      })),
       total: totalCountResult[0].total
     };
   }
