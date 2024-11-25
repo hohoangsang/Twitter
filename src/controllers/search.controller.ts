@@ -10,16 +10,17 @@ export const searchController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { content, limit, page, hashtag } = req.query;
+  const { limit, page, searchString, type, media } = req.query;
 
   const { user_id } = req.decoded_authorization as TokenPayload;
 
-  const { tweets, total } = await searchService.searchTweet({
-    content,
-    hashtag,
+  const { tweets, total } = await searchService.search({
+    searchString,
+    type,
     limit: Number(limit),
     page: Number(page),
-    user_id
+    user_id,
+    media
   });
 
   return res.send({

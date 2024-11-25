@@ -10,10 +10,13 @@ const searchRouter = express.Router();
  * Methods: GET
  * Path: /tweets
  * Query: {
- *  hashtag: string;
- *  content: string;
+ *  type: "HASHTAG" | "CONTENT"
+ *  media: boolean,
+ *  user: boolean,
  *  page: string;
  *  limit: string;
+ *  searchString: string;
+ *  people: "EVERYONE" | "FOLLOWING"
  * }
  */
 
