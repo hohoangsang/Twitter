@@ -10,7 +10,7 @@ export const searchController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { limit, page, searchString, type, media } = req.query;
+  const { limit, page, searchString, type, media, people } = req.query;
 
   const { user_id } = req.decoded_authorization as TokenPayload;
 
@@ -20,7 +20,8 @@ export const searchController = async (
     limit: Number(limit),
     page: Number(page),
     user_id,
-    media
+    media,
+    people
   });
 
   return res.send({

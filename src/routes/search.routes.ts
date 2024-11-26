@@ -11,8 +11,8 @@ const searchRouter = express.Router();
  * Path: /tweets
  * Query: {
  *  type: "HASHTAG" | "CONTENT"
- *  media: boolean,
- *  user: boolean,
+ *  media: 'true' | ''false,
+ *  user: 'true' | 'false',
  *  page: string;
  *  limit: string;
  *  searchString: string;

@@ -4,32 +4,29 @@ import Tweet from '~/models/schemas/tweet.schema';
 import { Document, ObjectId } from 'mongodb';
 import { MediaType, TweetType } from '~/constants/enum';
 import tweetsService from './tweets.services';
-import { TypeSearch } from '~/models/requests/search.requests';
+import { TypePeople, TypeSearch } from '~/models/requests/search.requests';
+import usersService from './users.services';
 
 config();
 
+export type SearchArg = {
+  limit: number;
+  page: number;
+  searchString: string;
+  user_id: string;
+  media?: string;
+  type: TypeSearch;
+  people?: TypePeople;
+};
+
 class SearchService {
-  async search({
-    limit,
-    media,
-    page,
-    searchString,
-    type,
-    user_id
-  }: {
-    limit: number;
-    page: number;
-    searchString: string;
-    user_id: string;
-    media: string;
-    type: TypeSearch;
-  }) {
+  async search({ limit, media, page, searchString, type, user_id, people }: SearchArg) {
     if (type === 'CONTENT') {
-      return await this.searchTweet({ limit, media, page, searchString, user_id });
+      return await this.searchTweet({ limit, media, page, searchString, user_id, people });
     }
 
     if (type === 'HASHTAG') {
-      return await this.searchTweetByHashtag({ limit, media, page, searchString, user_id });
+      return await this.searchTweetByHashtag({ limit, media, page, searchString, user_id, people });
     }
 
     return {
@@ -43,14 +40,9 @@ class SearchService {
     limit,
     page,
     user_id,
-    media
-  }: {
-    limit: number;
-    page: number;
-    searchString: string;
-    user_id: string;
-    media: string;
-  }) {
+    media,
+    people
+  }: Omit<SearchArg, 'type'>) {
     let tweets: Tweet[] = [];
     let totalCountTweets: Document[] = [];
 
@@ -59,6 +51,42 @@ class SearchService {
         $search: searchString
       }
     };
+
+    const matchTweetsForAnyone: any = {
+      $or: [
+        {
+          audience: 'EVERYONE'
+        },
+        {
+          user_id: new ObjectId(user_id)
+        },
+        {
+          $and: [
+            {
+              audience: 'TWITTERCIRCLE'
+            },
+            {
+              'user.twitter_circle': {
+                $in: [new ObjectId(user_id)]
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    let matchTweetsStage = matchTweetsForAnyone; //default
+
+    if (people === 'FOLLOWING') {
+      const followedUser = (await usersService.getFollowing({ user_id })).result;
+      const followedUserObjIDs = followedUser.map((user) => user.followed_user_id);
+      const matchTweetsForFollowing: any = {
+        user_id: {
+          $in: followedUserObjIDs
+        }
+      };
+      matchTweetsStage = matchTweetsForFollowing;
+    }
 
     if (media === 'true') {
       matchContent['medias.type'] = {
@@ -86,28 +114,7 @@ class SearchService {
             }
           },
           {
-            $match: {
-              $or: [
-                {
-                  audience: 'EVERYONE'
-                },
-                {
-                  user_id: new ObjectId(user_id)
-                },
-                {
-                  $and: [
-                    {
-                      audience: 'TWITTERCIRCLE'
-                    },
-                    {
-                      'user.twitter_circle': {
-                        $in: [new ObjectId(user_id)]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
+            $match: matchTweetsStage
           },
           {
             $sort: {
@@ -252,28 +259,7 @@ class SearchService {
             }
           },
           {
-            $match: {
-              $or: [
-                {
-                  audience: 'EVERYONE'
-                },
-                {
-                  user_id: new ObjectId(user_id)
-                },
-                {
-                  $and: [
-                    {
-                      audience: 'TWITTERCIRCLE'
-                    },
-                    {
-                      'user.twitter_circle': {
-                        $in: [new ObjectId(user_id)]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
+            $match: matchTweetsStage
           },
           {
             $count: 'total'
@@ -304,18 +290,13 @@ class SearchService {
     media,
     page,
     searchString,
-    user_id
-  }: {
-    searchString: string;
-    limit: number;
-    page: number;
-    user_id: string;
-    media: string;
-  }) {
+    user_id,
+    people
+  }: Omit<SearchArg, 'type'>) {
     let tweets: Tweet[] = [];
     let totalCountTweets: Document[] = [];
 
-    const matchTweets: any = {
+    const matchTweetsForAnyone: any = {
       $or: [
         {
           audience: 'EVERYONE'
@@ -337,6 +318,19 @@ class SearchService {
         }
       ]
     };
+
+    let matchTweets: any = matchTweetsForAnyone; //default;
+
+    if (people === 'FOLLOWING') {
+      const followedUser = (await usersService.getFollowing({ user_id })).result;
+      const followedUserObjIDs = followedUser.map((user) => user.followed_user_id);
+      const matchTweetsForFollowing: any = {
+        user_id: {
+          $in: followedUserObjIDs
+        }
+      };
+      matchTweets = matchTweetsForFollowing;
+    }
 
     if (media === 'true') {
       matchTweets['medias.type'] = {
@@ -553,28 +547,7 @@ class SearchService {
             }
           },
           {
-            $match: {
-              $or: [
-                {
-                  audience: 'EVERYONE'
-                },
-                {
-                  user_id: new ObjectId(user_id)
-                },
-                {
-                  $and: [
-                    {
-                      audience: 'TWITTERCIRCLE'
-                    },
-                    {
-                      'user.twitter_circle': {
-                        $in: [new ObjectId(user_id)]
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
+            $match: matchTweets
           },
           {
             $count: 'total'
