@@ -12,7 +12,7 @@ import databaseService from '~/services/database.services';
 import { wrapRequestHandler } from '~/utils/handlers';
 import { isMediaType, validate } from '~/utils/validation';
 
-const paginationSchema: Record<string, ParamSchema> = {
+export const paginationSchema: Record<string, ParamSchema> = {
   page: {
     isNumeric: true,
     custom: {

@@ -1,12 +1,10 @@
 import { Query } from 'express-serve-static-core';
 import { Pagination } from './tweet.requests';
-
-export type TypeSearch = 'CONTENT' | 'HASHTAG';
-export type TypePeople = 'EVERYONE' | 'FOLLOWING';
+import { PeopleSearchType, SearchType } from '~/constants/enum';
 
 export interface SearchTweetQuery extends Pagination, Query {
-  type: TypeSearch;
+  type: SearchType;
   searchString: string;
   media: string; // "true" | 'false'
-  people: TypePeople;
+  people: PeopleSearchType;
 }

@@ -1,5 +1,6 @@
 import express from 'express';
 import { searchController } from '~/controllers/search.controller';
+import { searchValidator } from '~/middlewares/search.middleware';
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';
 
@@ -11,12 +12,12 @@ const searchRouter = express.Router();
  * Path: /tweets
  * Query: {
  *  type: "HASHTAG" | "CONTENT"
- *  media: 'true' | ''false,
- *  user: 'true' | 'false',
+ *  media?: 'true' | ''false,
+ *  user?: 'true' | 'false',
  *  page: string;
  *  limit: string;
  *  searchString: string;
- *  people: "EVERYONE" | "FOLLOWING"
+ *  people?: "EVERYONE" | "FOLLOWING"
  * }
  */
 
@@ -24,6 +25,7 @@ searchRouter.get(
   '/tweets',
   accessTokenValidator,
   verifiedUserValidator,
+  searchValidator,
   wrapRequestHandler(searchController)
 );
 

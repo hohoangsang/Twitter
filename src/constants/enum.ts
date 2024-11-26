@@ -35,3 +35,13 @@ export enum TweetAudience {
   Everyone = 'EVERYONE',
   TwitterCircle = 'TWITTERCIRCLE'
 }
+
+export enum SearchType {
+  HASHTAG = 'HASHTAG',
+  CONTENT = 'CONTENT'
+}
+
+export enum PeopleSearchType {
+  EVERYONE = 'EVERYONE',
+  FOLLOWING = 'FOLLOWING'
+}

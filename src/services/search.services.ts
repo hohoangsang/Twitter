@@ -2,9 +2,8 @@ import { config } from 'dotenv';
 import databaseService from './database.services';
 import Tweet from '~/models/schemas/tweet.schema';
 import { Document, ObjectId } from 'mongodb';
-import { MediaType, TweetType } from '~/constants/enum';
+import { MediaType, PeopleSearchType, SearchType, TweetType } from '~/constants/enum';
 import tweetsService from './tweets.services';
-import { TypePeople, TypeSearch } from '~/models/requests/search.requests';
 import usersService from './users.services';
 
 config();
@@ -15,17 +14,17 @@ export type SearchArg = {
   searchString: string;
   user_id: string;
   media?: string;
-  type: TypeSearch;
-  people?: TypePeople;
+  type: SearchType;
+  people?: PeopleSearchType;
 };
 
 class SearchService {
   async search({ limit, media, page, searchString, type, user_id, people }: SearchArg) {
-    if (type === 'CONTENT') {
+    if (type === SearchType.CONTENT) {
       return await this.searchTweet({ limit, media, page, searchString, user_id, people });
     }
 
-    if (type === 'HASHTAG') {
+    if (type === SearchType.HASHTAG) {
       return await this.searchTweetByHashtag({ limit, media, page, searchString, user_id, people });
     }
 
@@ -77,7 +76,7 @@ class SearchService {
 
     let matchTweetsStage = matchTweetsForAnyone; //default
 
-    if (people === 'FOLLOWING') {
+    if (people === PeopleSearchType.FOLLOWING) {
       const followedUser = (await usersService.getFollowing({ user_id })).result;
       const followedUserObjIDs = followedUser.map((user) => user.followed_user_id);
       const matchTweetsForFollowing: any = {
@@ -321,7 +320,7 @@ class SearchService {
 
     let matchTweets: any = matchTweetsForAnyone; //default;
 
-    if (people === 'FOLLOWING') {
+    if (people === PeopleSearchType.FOLLOWING) {
       const followedUser = (await usersService.getFollowing({ user_id })).result;
       const followedUserObjIDs = followedUser.map((user) => user.followed_user_id);
       const matchTweetsForFollowing: any = {

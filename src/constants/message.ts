@@ -91,8 +91,9 @@ export const TWEETS_MESSAGES = {
   TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
   CREATE_TWEET_SUCCESS: 'Create tweet success',
   TWEET_ID_MUST_BE_A_VALID_TWEET_ID: 'Tweet id must be a valid id',
-  GET_TWEET_SUCCESSFULLY: 'get tweet successfully',
-  GET_TWEET_CHILDREN_SUCCESSFULLY: 'get tweet children successfully'
+  GET_TWEET_SUCCESSFULLY: 'Get tweet successfully',
+  GET_TWEET_CHILDREN_SUCCESSFULLY: 'Get tweet children successfully',
+  SEARCH_STRING_NOT_EMPTY: 'searchString in not empty'
 } as const;
 
 export const BOOKMARK_MESSAGES = {
