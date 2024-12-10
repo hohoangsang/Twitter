@@ -214,10 +214,7 @@ export const loginValidator = validate(
             });
 
             if (!user) {
-              throw new ErrorWithStatus({
-                status: HTTP_STATUS.UNAUTHORIZED,
-                message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT
-              });
+              throw new Error(USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INCORRECT);
             }
 
             req.user = user;

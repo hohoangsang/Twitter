@@ -11,6 +11,13 @@ import tweetRouter from '~/routes/tweets.routes';
 import bookmarksRouter from '~/routes/bookmarks.routes';
 import likesRouter from './routes/likes.routes';
 import searchRouter from './routes/search.routes';
+import YAML from 'yaml';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+import path from 'path';
+
+const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'), 'utf8');
+const swaggerDocument = YAML.parse(file);
 
 // /**
 //  * Import script để tạo tự động nhiều data vào trong MongoDB,
@@ -42,7 +49,7 @@ const port = process.env.PORT || 4000;
 initFolder();
 
 app.use(cors());
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/users', userRouter);
 app.use('/medias', mediasRouter);
 app.use('/static', staticRoutes);
