@@ -16,6 +16,7 @@ import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import swaggerJsdoc from 'swagger-jsdoc';
+import { swaggerConfig } from '~/swagger/swagger';
 
 // /**
 //  * Import script để tạo tự động nhiều data vào trong MongoDB,
@@ -24,39 +25,10 @@ import swaggerJsdoc from 'swagger-jsdoc';
 //  */
 // import '~/utils/fake';
 
-// const file = fs.readFileSync(path.resolve('swagger/swagger.yaml'), 'utf8');
+// const file = fs.readFileSync(path.resolve('twitter-swagger.yaml'), 'utf8');
 // const swaggerDocument = YAML.parse(file);
 
-const options: swaggerJsdoc.Options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Swagger X(Twitter) clone - OpenAPI 3.0',
-      version: '1.0.1',
-      description: 'This is a X(Twitter) clone Server based on the OpenAPI 3.0 specification',
-      contact: {
-        email: 'hoangsangho93@gmail.com'
-      },
-      license: {
-        name: 'Apache 2.0',
-        url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-      }
-    },
-    externalDocs: {
-      description: 'Find out more about Swagger',
-      url: 'http://swagger.io'
-    },
-    servers: [
-      {
-        url: 'http://localhost:4000/'
-      }
-    ]
-  },
-
-  apis: ['./swagger/swagger.yaml', './swagger/components.yaml']
-};
-
-const openapiSpecification = swaggerJsdoc(options);
+const openapiSpecification = swaggerJsdoc(swaggerConfig);
 
 config();
 
