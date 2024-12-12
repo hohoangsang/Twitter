@@ -34,7 +34,7 @@ likesRouter.post(
  * }
  */
 likesRouter.delete(
-  '/tweet/:tweetId',
+  '/tweet/:tweet_id',
   accessTokenValidator,
   verifiedUserValidator,
   tweetIdValidator,

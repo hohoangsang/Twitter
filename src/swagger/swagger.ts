@@ -1,6 +1,7 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import { usersSwagger } from './users.swagger';
 import { bookmarksSwagger } from './bookmarks.swagger';
+import { likesSwagger } from './likes.swagger';
 
 export const swaggerConfig: swaggerJSDoc.Options = {
   definition: {
@@ -29,15 +30,29 @@ export const swaggerConfig: swaggerJSDoc.Options = {
       }
     ],
 
+    tags: [
+      {
+        name: 'Users'
+      },
+      {
+        name: 'Bookmarks'
+      },
+      {
+        name: 'Likes'
+      }
+    ],
+
     paths: {
       ...usersSwagger.paths,
-      ...bookmarksSwagger.paths
+      ...bookmarksSwagger.paths,
+      ...likesSwagger.paths
     },
 
     components: {
       schemas: {
         ...usersSwagger.components.schemas,
-        ...bookmarksSwagger.components.schemas
+        ...bookmarksSwagger.components.schemas,
+        ...likesSwagger.components.schemas
       },
 
       securitySchemes: {

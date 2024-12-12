@@ -5,7 +5,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
   paths: {
     '/users/login': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Login vào hệ thống',
         operationId: 'loginUser',
         requestBody: {
@@ -57,7 +57,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/me': {
       get: {
-        tags: ['users'],
+        tags: ['Users'],
         // summary: "Lấy thông tin user's",
         description: 'Lấy thông tin user',
         operationId: 'getMe',
@@ -93,7 +93,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
       },
 
       patch: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Cập nhật thông tin user',
         operationId: 'updateMe',
         security: [
@@ -138,7 +138,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/register': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Đăng ký tài khoản',
         operationId: 'registerUser',
         requestBody: {
@@ -199,7 +199,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/refresh-access-token': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Refresh access token',
         operationId: 'refreshAccessToken',
         requestBody: {
@@ -257,7 +257,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/logout': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Logout',
         operationId: 'logout',
         security: [
@@ -303,7 +303,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/verify-email': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Verify email',
         operationId: 'verifyEmail',
         requestBody: {
@@ -358,7 +358,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/forgot-password': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Forgot password',
         operationId: 'forgotPassword',
         requestBody: {
@@ -413,7 +413,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/verify-forgot-password': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Verify forgot password',
         operationId: 'verifyForgotPassword',
         requestBody: {
@@ -466,7 +466,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/reset-password': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Reset password',
         operationId: 'resetPassword',
         requestBody: {
@@ -515,7 +515,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/change-password': {
       put: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Change password',
         operationId: 'changePassword',
         security: [
@@ -566,7 +566,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/{username}': {
       get: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Get user by username',
         operationId: 'getUserByUsername',
         parameters: [
@@ -616,7 +616,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/follow-user': {
       post: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Follow user',
         operationId: 'followUser',
         requestBody: {
@@ -679,7 +679,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/unfollow-user/{followedUserId}': {
       delete: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Unfollow user',
         operationId: 'unfollowUser',
         parameters: [
@@ -737,7 +737,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/follow/following': {
       get: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Get list following',
         operationId: 'getListFollowing',
         security: [
@@ -824,7 +824,7 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
 
     '/users/follow/follower': {
       get: {
-        tags: ['users'],
+        tags: ['Users'],
         description: 'Get list follower',
         operationId: 'getListFollower',
         security: [

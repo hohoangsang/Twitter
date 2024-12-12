@@ -20,11 +20,11 @@ export const createBookmarkTweetController = async (
 };
 
 export const unBookmarkTweetController = async (
-  request: Request<{ tweetId: string }>,
+  request: Request<{ tweet_id: string }>,
   response: Response
 ) => {
   const { user_id } = request.decoded_authorization as TokenPayload;
-  const { tweetId: tweet_id } = request.params;
+  const { tweet_id } = request.params;
 
   const result = await bookmarksService.unBookmark({ tweet_id, user_id });
 
