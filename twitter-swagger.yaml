@@ -51,6 +51,7 @@ paths:
           description: 'Not found'
         '422':
           description: 'Email or password is incorrect'
+
   /users/me:
     get:
       tags:
@@ -73,6 +74,41 @@ paths:
           description: 'Access denied'
         '404':
           description: 'Not found'
+
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: 'Đăng ký tài khoản'
+      description: 'Đăng ký tài khoản'
+      operationId: registerUser
+      requestBody:
+        description: 'Resgister user'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterReqBody'
+        required: true
+      responses:
+        '200':
+          description: 'Register success'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Login success'
+                  result:
+                    $ref: '#/components/schemas/SuccessAuthentication'
+        '403':
+          description: 'Access denied'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Internal server error'
+
 components:
   schemas:
     Login:
@@ -158,6 +194,31 @@ components:
       type: number
       example: 1
       enum: [Unverified, Verified, Banned]
+    RegisterReqBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'SangDepTroai'
+        email:
+          type: string
+          format: email
+          example: 'sang2@gmail.com'
+        password:
+          type: string
+          example: 'Dueling@123'
+        confirm_password:
+          type: string
+          example: 'Dueling@123'
+        date_of_birth:
+          type: string
+          format: ISO8601
+          example: '1970-01-01T00:00:00.000Z'
+      required:
+        - name
+        - email
+        - password
+        - confirm_password
   securitySchemes:
     BearerAuth:
       type: http

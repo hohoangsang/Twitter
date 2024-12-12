@@ -188,6 +188,7 @@ export const tweetIdValidator = validate(
       tweet_id: {
         custom: {
           options: async (value, { req }) => {
+            console.log(value);
             if (!ObjectId.isValid(value) || typeof value !== 'string') {
               throw new ErrorWithStatus({
                 status: HTTP_STATUS.BAD_REQUEST,
@@ -326,7 +327,7 @@ export const tweetIdValidator = validate(
         }
       }
     },
-    ['body', 'params']
+    ['body', 'params', 'query']
   )
 );
 

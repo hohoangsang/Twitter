@@ -1,5 +1,6 @@
 import swaggerJSDoc from 'swagger-jsdoc';
-import { userSwagger } from './user.swagger';
+import { usersSwagger } from './users.swagger';
+import { bookmarksSwagger } from './bookmarks.swagger';
 
 export const swaggerConfig: swaggerJSDoc.Options = {
   definition: {
@@ -16,10 +17,12 @@ export const swaggerConfig: swaggerJSDoc.Options = {
         url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
       }
     },
+
     externalDocs: {
       description: 'Find out more about Swagger',
       url: 'http://swagger.io'
     },
+
     servers: [
       {
         url: 'http://localhost:4000/'
@@ -27,18 +30,22 @@ export const swaggerConfig: swaggerJSDoc.Options = {
     ],
 
     paths: {
-      ...userSwagger.path
+      ...usersSwagger.paths,
+      ...bookmarksSwagger.paths
     },
 
     components: {
       schemas: {
-        ...userSwagger.components.schemas
+        ...usersSwagger.components.schemas,
+        ...bookmarksSwagger.components.schemas
       },
 
-      BearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT'
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
       }
     }
   },
