@@ -5,7 +5,7 @@ import {
   serveSegmentController,
   serveVideoController,
   serveVideoStreamController
-} from '~/controllers/medias.controller';
+} from '~/controllers/medias.controllers';
 
 const staticRoutes = express.Router();
 

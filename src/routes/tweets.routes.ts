@@ -4,7 +4,7 @@ import {
   getNewFeedsController,
   getTweetChildrensController,
   getTweetController
-} from '~/controllers/tweets.controller';
+} from '~/controllers/tweets.controllers';
 import {
   audienceValidator,
   createTweetValidator,

@@ -1,5 +1,5 @@
 import express from 'express';
-import { searchController } from '~/controllers/search.controller';
+import { searchController } from '~/controllers/search.controllers';
 import { searchValidator } from '~/middlewares/search.middleware';
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares';
 import { wrapRequestHandler } from '~/utils/handlers';

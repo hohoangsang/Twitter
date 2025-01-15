@@ -16,32 +16,6 @@ class TweetsService {
 
     const hashtagsObjectId = await hashtagsService.checkAndCreateHashtags(hashtags || []);
 
-    // const objectHashtag: { [key: string]: ObjectId | undefined } = {};
-
-    // //init objectHashtag
-    // hashtags?.forEach((item: string) => (objectHashtag[item] = undefined));
-
-    // const existedHashtags = await hashtagsService.findManyHashtag({
-    //   key: 'name',
-    //   arrIn: hashtags || []
-    // });
-
-    // const existedHashtagsName = existedHashtags.map((item) => {
-    //   objectHashtag[item.name] = item._id;
-    //   return item.name;
-    // });
-
-    // const newHashtagNames = hashtags?.filter(
-    //   (name) => Boolean(existedHashtagsName.includes(name)) === false
-    // );
-
-    // if (newHashtagNames?.length) {
-    //   const arrayNewHashTag = await hashtagsService.insertManyHashtag(newHashtagNames);
-    //   arrayNewHashTag.forEach((item) => {
-    //     if (!objectHashtag[item.name]) objectHashtag[item.name] = item._id;
-    //   });
-    // }
-
     const result = await databaseService.tweets.insertOne(
       new Tweet({
         content,

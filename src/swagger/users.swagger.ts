@@ -1116,23 +1116,6 @@ export const usersSwagger: Omit<swaggerJSDoc.SwaggerDefinition, 'info'> = {
           }
         }
       },
-      Pagination: {
-        type: 'object',
-        properties: {
-          limit: {
-            type: 'number',
-            example: 10
-          },
-          page: {
-            type: 'number',
-            example: 1
-          },
-          total: {
-            type: 'number',
-            example: 10
-          }
-        }
-      },
       ChangePassword: {
         type: 'object',
         properties: {

@@ -2,6 +2,8 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import { usersSwagger } from './users.swagger';
 import { bookmarksSwagger } from './bookmarks.swagger';
 import { likesSwagger } from './likes.swagger';
+import { tweetsSwagger } from '~/swagger/tweets.swagger';
+import { MediaType } from '~/constants/enum';
 
 export const swaggerConfig: swaggerJSDoc.Options = {
   definition: {
@@ -39,20 +41,66 @@ export const swaggerConfig: swaggerJSDoc.Options = {
       },
       {
         name: 'Likes'
+      },
+      {
+        name: 'Tweets'
       }
     ],
 
     paths: {
       ...usersSwagger.paths,
       ...bookmarksSwagger.paths,
-      ...likesSwagger.paths
+      ...likesSwagger.paths,
+      ...tweetsSwagger.paths
     },
 
     components: {
       schemas: {
         ...usersSwagger.components.schemas,
         ...bookmarksSwagger.components.schemas,
-        ...likesSwagger.components.schemas
+        ...likesSwagger.components.schemas,
+        ...tweetsSwagger.components.schemas,
+
+        //Common
+        Pagination: {
+          type: 'object',
+          properties: {
+            limit: {
+              type: 'number',
+              example: 10
+            },
+            page: {
+              type: 'number',
+              example: 1
+            },
+            total: {
+              type: 'number',
+              example: 10
+            }
+          }
+        },
+        MediaTypes: {
+          type: 'enum',
+          enum: ['IMAGE', 'VIDEO', 'HLS']
+        },
+        AudienceTypes: {
+          type: 'enum',
+          enum: ['EVERYONE', 'TWITTERCIRCLE']
+        },
+        Media: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+              example: 'https://example.com/image.jpg'
+            },
+            type: {
+              type: 'string',
+              example: 'IMAGE',
+              $ref: '#/components/schemas/MediaTypes'
+            }
+          }
+        }
       },
 
       securitySchemes: {
