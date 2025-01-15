@@ -37,7 +37,9 @@ export const serveImageController = (req: Request, res: Response) => {
 export const serveVideoController = (req: Request, res: Response) => {
   const name = req.params.name;
 
-  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, name), (err: Error) => {
+  const [idName, ext] = name.split('.');
+
+  res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, `${idName}/${name}`), (err: Error) => {
     if (err) {
       res.status((err as any).status).send('Not found');
     }
