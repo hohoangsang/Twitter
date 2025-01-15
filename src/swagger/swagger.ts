@@ -4,6 +4,7 @@ import { bookmarksSwagger } from './bookmarks.swagger';
 import { likesSwagger } from './likes.swagger';
 import { tweetsSwagger } from '~/swagger/tweets.swagger';
 import { MediaType } from '~/constants/enum';
+import { searchSwagger } from '~/swagger/search.swagger';
 
 export const swaggerConfig: swaggerJSDoc.Options = {
   definition: {
@@ -44,6 +45,9 @@ export const swaggerConfig: swaggerJSDoc.Options = {
       },
       {
         name: 'Tweets'
+      },
+      {
+        name: 'Search'
       }
     ],
 
@@ -51,7 +55,8 @@ export const swaggerConfig: swaggerJSDoc.Options = {
       ...usersSwagger.paths,
       ...bookmarksSwagger.paths,
       ...likesSwagger.paths,
-      ...tweetsSwagger.paths
+      ...tweetsSwagger.paths,
+      ...searchSwagger.paths
     },
 
     components: {
